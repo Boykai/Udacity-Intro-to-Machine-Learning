@@ -20,8 +20,11 @@ from sklearn.svm import SVC
 features_train, features_test, labels_train, labels_test = preprocess()
 
 ### create linear classifier
-clf = SVC(kernel = 'linear')
+#clf = SVC(kernel = 'linear')
 
+### create rbf classifier
+clf = SVC(kernel = 'rbf')
+                            
 ### start timer
 t0 = time()
 
