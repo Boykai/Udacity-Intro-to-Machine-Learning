@@ -25,11 +25,17 @@ clf = SVC(kernel = 'linear')
 ### start timer
 t0 = time()
 
+### cut down on processing time by reducing features to 1% of original
+features_train_1_percent = features_train[:len(features_train)/100] 
+labels_train_1_percent = labels_train[:len(labels_train)/100] 
+
+
 ### fit the classifier on the training features and labels
-clf.fit(features_train, labels_train)
+clf.fit(features_train_1_percent, labels_train_1_percent)
 
 ### stop timer
 print('Training Time: ', round(time() - t0, 3), "s")
+
 
 ### start timer
 t1 = time()
