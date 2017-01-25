@@ -48,6 +48,12 @@ pred = clf.predict(features_test)
 ### stop timer
 print('Prediction Time: ', round(time() - t1, 3), "s")
 
+### print the requested prediction values
+print('Prediction 10 = ' + str(pred[10]))
+print('Prediction 26 = ' + str(pred[26]))
+print('Prediction 50 = ' + str(pred[50]))
+
+
 ### calculate and return the accuracy on the test data
 accuracy = clf.score(features_test, labels_test)
 
