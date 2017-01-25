@@ -13,6 +13,7 @@ from time import time
 sys.path.append("../tools/")
 from email_preprocess import preprocess
 from sklearn.svm import SVC
+from collections import Counter
 
 ### features_train and features_test are the features for the training
 ### and testing datasets, respectively
@@ -57,8 +58,11 @@ print('Prediction 50 = ' + str(pred[50]))
 ### calculate and return the accuracy on the test data
 accuracy = clf.score(features_test, labels_test)
 
-
 print(accuracy)
 
+### get number of 0 and 1 counts for prediction results
+counts = Counter(pred)
+
+print(counts)
 
 
