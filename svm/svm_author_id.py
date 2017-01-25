@@ -22,44 +22,37 @@ features_train, features_test, labels_train, labels_test = preprocess()
 ### create linear classifier
 #clf = SVC(kernel = 'linear')
 
-tune_c_values = [10, 100, 1000, 10000]
+c = 10000
 
-for c in tune_c_values:
+### create rbf classifier
+clf = SVC(kernel = 'rbf', C = c)
 
-    ### create rbf classifier
-    clf = SVC(kernel = 'rbf', C = c)
-    
-    print('\nC = ' + str(c))
-                                
-    ### start timer
-    t0 = time()
-    
-    ### cut down on processing time by reducing features to 1% of original
-    features_train_1_percent = features_train[:len(features_train)/100] 
-    labels_train_1_percent = labels_train[:len(labels_train)/100] 
-    
-    
-    ### fit the classifier on the training features and labels
-    clf.fit(features_train_1_percent, labels_train_1_percent)
-    
-    ### stop timer
-    print('Training Time: ', round(time() - t0, 3), "s")
-    
-    
-    ### start timer
-    t1 = time()
-    
-    ### use the trained classifier to predict labels for the test features
-    pred = clf.predict(features_test)
-    
-    ### stop timer
-    print('Prediction Time: ', round(time() - t1, 3), "s")
-    
-    ### calculate and return the accuracy on the test data
-    accuracy = clf.score(features_test, labels_test)
-    
-    
-    print(accuracy)
+print('\nC = ' + str(c))
+                            
+### start timer
+t0 = time()
+
+### fit the classifier on the training features and labels
+clf.fit(features_train, labels_train)
+
+### stop timer
+print('Training Time: ', round(time() - t0, 3), "s")
+
+
+### start timer
+t1 = time()
+
+### use the trained classifier to predict labels for the test features
+pred = clf.predict(features_test)
+
+### stop timer
+print('Prediction Time: ', round(time() - t1, 3), "s")
+
+### calculate and return the accuracy on the test data
+accuracy = clf.score(features_test, labels_test)
+
+
+print(accuracy)
 
 
 
