@@ -19,4 +19,5 @@ import pickle
 
 enron_data = pickle.load(open("../final_project/final_project_dataset.pkl", "r"))
 
-
+# Print the number of rows/people in the Enron dataset
+print('Number of data points = ' + str(len(enron_data)))
