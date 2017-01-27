@@ -21,3 +21,7 @@ enron_data = pickle.load(open("../final_project/final_project_dataset.pkl", "r")
 
 # Print the number of rows/people in the Enron dataset
 print('Number of data points = ' + str(len(enron_data)))
+
+# Print the number of unique features in the Enron dataset for each person
+print('Number of features for each data point' 
+      + str(len(enron_data.values()[0])))
