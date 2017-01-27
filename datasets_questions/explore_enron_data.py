@@ -23,5 +23,14 @@ enron_data = pickle.load(open("../final_project/final_project_dataset.pkl", "r")
 print('Number of data points = ' + str(len(enron_data)))
 
 # Print the number of unique features in the Enron dataset for each person
-print('Number of features for each data point' 
+print('Number of features for each data point = ' 
       + str(len(enron_data.values()[0])))
+
+# Print the person of interest count for the data set
+poi_count = 0
+
+for key in enron_data.keys():
+    if enron_data[key].get('poi'):
+        poi_count += 1
+        
+print('Number of people of interest in data set = ' + str(poi_count))
