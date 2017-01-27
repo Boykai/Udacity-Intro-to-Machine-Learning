@@ -34,3 +34,7 @@ for key in enron_data.keys():
         poi_count += 1
         
 print('Number of people of interest in data set = ' + str(poi_count))
+
+# Print the total value of the stock belonging to James Prentice
+print('Total number value of the stock belonging to James Prentice = '
+      + str(enron_data['PRENTICE JAMES']['total_stock_value']))
