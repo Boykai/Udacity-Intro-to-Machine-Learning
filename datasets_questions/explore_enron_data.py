@@ -42,3 +42,22 @@ print('Total number value of the stock belonging to James Prentice = '
 # Print the value of stock options exercised by Jeff Skilling
 print('Value of stock options exercised by Jeffrey Skilling = '
       + str(enron_data['SKILLING JEFFREY K']['exercised_stock_options']))
+
+# Print "Of these three individuals (Lay, Skilling, and Fastow), who took home
+# the most money (largest value of "total_payments" feature)? How much money
+# did that person get?"
+lay_take_home_pay = enron_data['LAY KENNETH L']['total_payments']
+print('Lay took home $'
+      + str(lay_take_home_pay))
+
+skilling_take_home_pay = enron_data['SKILLING JEFFREY K']['total_payments']
+
+print('Skilling took home $'
+      + str(skilling_take_home_pay))
+
+fastow_take_home_pay = enron_data['FASTOW ANDREW S']['total_payments']
+print('Fastow took home $'
+      + str(fastow_take_home_pay))
+
+print('Lay received the most money at $'
+      + str(lay_take_home_pay))
