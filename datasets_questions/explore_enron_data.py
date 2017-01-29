@@ -16,6 +16,7 @@
 """
 
 import pickle
+import pandas as pd
 
 enron_data = pickle.load(open("../final_project/final_project_dataset.pkl", "r"))
 
@@ -61,3 +62,14 @@ print('Fastow took home $'
 
 print('Lay received the most money at $'
       + str(lay_take_home_pay))
+
+# Print how many folks in the dataset have a quantified salary
+enron_df = pd.DataFrame(enron_data).T
+
+enron_rows = len(enron_df)
+print('Number of non-NaN salaries = '
+      + str(enron_rows - enron_df['salary'].isin(['NaN']).sum()))
+
+# Print how many folk in the dataset have email addresses
+print('Number of non-NaN email addresses = '
+      + str(enron_rows - enron_df['email_address'].isin(['NaN']).sum()))
