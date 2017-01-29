@@ -43,7 +43,11 @@ reg.fit(feature_train, target_train)
 
 r = reg.score(feature_test, target_test)
 
+print('The slope for the linear regession model is '
+      + str(reg.coef_))
 
+print('The intercept for the linear regression model is '
+      + str(reg.intercept_))
 
 ### draw the scatterplot, with color-coded training and testing points
 import matplotlib.pyplot as plt
