@@ -38,3 +38,7 @@ print('Total number of people of interest in data set = ' + str(poi_count))
 # Print the total value of the stock belonging to James Prentice
 print('Total number value of the stock belonging to James Prentice = '
       + str(enron_data['PRENTICE JAMES']['total_stock_value']))
+
+# Print the value of stock options exercised by Jeff Skilling
+print('Value of stock options exercised by Jeffrey Skilling = '
+      + str(enron_data['SKILLING JEFFREY K']['exercised_stock_options']))
