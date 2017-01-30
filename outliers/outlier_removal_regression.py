@@ -74,11 +74,21 @@ if len(cleaned_data) > 0:
     ### refit your cleaned data!
     try:
         reg.fit(ages, net_worths)
+      
+        print('The slope for the linear regession model is '
+              + str(reg.coef_))
+
+        print('The intercept for the linear regression model is '
+              + str(reg.intercept_))
+    
         plt.plot(ages, reg.predict(ages), color="blue")
     except NameError:
         print "you don't seem to have regression imported/created,"
         print "   or else your regression object isn't named reg"
         print "   either way, only draw the scatter plot of the cleaned data"
+    
+    
+        
     plt.scatter(ages, net_worths)
     plt.xlabel("ages")
     plt.ylabel("net worths")
