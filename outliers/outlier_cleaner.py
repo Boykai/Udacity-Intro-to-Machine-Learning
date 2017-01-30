@@ -13,8 +13,16 @@ def outlierCleaner(predictions, ages, net_worths):
     
     cleaned_data = []
 
-    ### your code goes here
-
+    sorted_predictions = sorted(predictions)
+    
+    percent_of_predictions = sorted_predictions[ : int(len(sorted_predictions) * 0.9)]
+    
+    for i in range(len(predictions)):
+        if i > len(percent_of_predictions):
+            break
+        else:
+            if predictions[i] in percent_of_predictions:
+                cleaned_data.append((ages[i], net_worths[i], predictions[i]))
     
     return cleaned_data
 
