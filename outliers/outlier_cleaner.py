@@ -23,7 +23,6 @@ def outlierCleaner(predictions, ages, net_worths):
     # Store all age, net_worth, error values in list if error is in lower 90%
     for i in range(len(errors)):
         if errors[i] <= percent_of_errors[-1]:
-                print(errors[i])
                 cleaned_data.append((ages[i], net_worths[i], errors[i]))
     
     return cleaned_data
