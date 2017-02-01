@@ -7,6 +7,7 @@ import sys
 
 sys.path.append( "../tools/" )
 from parse_out_email_text import parseOutText
+from sklearn.feature_extraction.text import CountVectorizer
 
 """
     Starter code to process the emails from Sara and Chris to extract
@@ -41,7 +42,7 @@ for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
     for path in from_person:
         ### only look at first 200 emails when developing
         ### once everything is working, remove this line to run over full dataset
-        temp_counter += 1
+        #temp_counter += 1
         if temp_counter < 200:
             #path = os.path.join('..', path[:-1])   #Commented out for later use
             path = os.path.join('..', path[:-1])
@@ -76,9 +77,15 @@ pickle.dump( word_data, open("your_word_data.pkl", "w") )
 pickle.dump( from_data, open("your_email_authors.pkl", "w") )
 
 # Print out the string for word_data[152]
-print(word_data[152])
+print('The value for word_data[152] = '
+      + word_data[152])
 
 
 ### in Part 4, do TfIdf vectorization here
+vectorizer = CountVectorizer(stop_words = 'english')
+vectorized_corpus = vectorizer.fit_transform(word_data)
+vectorized_feature_names = vectorizer.get_feature_names()
 
-
+# Print out how many different vectorized words there are in the email corpus
+print('The num of different non-stop words in the corpus = '
+      + str(len(vectorized_feature_names)))
