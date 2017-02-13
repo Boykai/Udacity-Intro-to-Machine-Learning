@@ -5,11 +5,11 @@ import pickle
 import re
 import sys
 
-sys.path.append( "../tools/" )
+sys.path.append( '../tools/' )
 from parse_out_email_text import parseOutText
 from sklearn.feature_extraction.text import CountVectorizer
 
-"""
+'''
     Starter code to process the emails from Sara and Chris to extract
     the features and get the documents ready for classification.
 
@@ -21,11 +21,11 @@ from sklearn.feature_extraction.text import CountVectorizer
     not obtained the Enron email corpus, run startup.py in the tools folder.
 
     The data is stored in lists and packed away in pickle files at the end.
-"""
+'''
 
 
-from_sara  = open("from_sara.txt", "r")
-from_chris = open("from_chris.txt", "r")
+from_sara  = open('from_sara.txt', 'r')
+from_chris = open('from_chris.txt', 'r')
 
 from_data = []
 word_data = []
@@ -38,7 +38,7 @@ word_data = []
 temp_counter = 0
 
 
-for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
+for name, from_person in [('sara', from_sara), ('chris', from_chris)]:
     for path in from_person:
         ### only look at first 200 emails when developing
         ### once everything is working, remove this line to run over full dataset
@@ -46,14 +46,14 @@ for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
         if temp_counter < 200:
             path = os.path.join('..', path[:-1])
             print path
-            email = open(path, "r")
+            email = open(path, 'r')
 
             ### use parseOutText to extract the text from the opened email
             current_email = parseOutText(email)
             
             ### use str.replace() to remove any instances of the words
-            ### ["sara", "shackleton", "chris", "germani"]
-            words_to_delete = ["sara", "shackleton", "chris", "germani"]
+            ### ['sara', 'shackleton', 'chris', 'germani']
+            words_to_delete = ['sara', 'shackleton', 'chris', 'germani']
             for word in words_to_delete:
                 current_email.replace(word, '')
             
@@ -68,12 +68,12 @@ for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
 
             email.close()
 
-print "emails processed"
+print 'emails processed'
 from_sara.close()
 from_chris.close()
 
-pickle.dump( word_data, open("your_word_data.pkl", "w") )
-pickle.dump( from_data, open("your_email_authors.pkl", "w") )
+pickle.dump( word_data, open('your_word_data.pkl', 'w') )
+pickle.dump( from_data, open('your_email_authors.pkl', 'w') )
 
 # Print out the string for word_data[152]
 print('The value for word_data[152] = '
