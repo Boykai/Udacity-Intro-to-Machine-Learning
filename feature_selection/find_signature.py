@@ -1,7 +1,10 @@
 #!/usr/bin/python
-
+import sys
+from time import time
 import pickle
 import numpy
+from sklearn import tree
+
 numpy.random.seed(42)
 
 
@@ -37,7 +40,32 @@ labels_train   = labels_train[:150]
 
 
 
-### your code goes here
+### create classifier
+clf = tree.DecisionTreeClassifier()
 
+### start timer
+t0 = time()
+
+### fit the classifier on the training features and labels
+clf = clf.fit(features_train, labels_train)
+
+### stop timer
+print('Training Time: ', round(time() - t0, 3), "s")
+
+
+### start timer
+t1 = time()
+
+### use the trained classifier to predict labels for the test features
+pred = clf.predict(features_test)
+
+### stop timer
+print('Prediction Time: ', round(time() - t1, 3), "s")
+
+### calculate and return the accuracy on the test data
+accuracy = clf.score(features_test, labels_test)
+
+
+print(accuracy)
 
 
