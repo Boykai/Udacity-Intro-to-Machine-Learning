@@ -88,3 +88,6 @@ vectorized_feature_names = vectorizer.get_feature_names()
 # Print out how many different vectorized words there are in the email corpus
 print('The num of different non-stop words in the corpus = '
       + str(len(vectorized_feature_names)))
+
+print('Word number 34597 = ' 
+      + vectorized_feature_names[34597])
