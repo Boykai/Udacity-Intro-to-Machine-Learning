@@ -55,7 +55,7 @@ for name, from_person in [('sara', from_sara), ('chris', from_chris)]:
             ### ['sara', 'shackleton', 'chris', 'germani']
             words_to_delete = ['sara', 'shackleton', 'chris', 'germani']
             for word in words_to_delete:
-                current_email.replace(word, '')
+                current_email = current_email.replace(word, '')
             
                 ### append the text to word_data
             word_data.append(current_email)
