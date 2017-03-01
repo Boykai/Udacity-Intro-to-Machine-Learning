@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import sys
 from time import time
 import pickle
 import numpy
