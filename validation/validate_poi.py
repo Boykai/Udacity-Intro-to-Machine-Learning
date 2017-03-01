@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-
 """
     Starter code for the validation mini-project.
     The first step toward building your POI identifier!
@@ -14,6 +13,8 @@ import pickle
 import sys
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
+from sklearn import tree
+from time import time
 
 data_dict = pickle.load(open("../final_project/final_project_dataset.pkl", "r") )
 
@@ -28,5 +29,31 @@ labels, features = targetFeatureSplit(data)
 
 
 ### it's all yours from here forward!  
+### create classifier
+clf = tree.DecisionTreeClassifier()
 
+### start timer
+t0 = time()
+
+### fit the classifier on the training features and labels
+clf = clf.fit(features, labels)
+
+### stop timer
+print('Training Time: ', round(time() - t0, 3), "s")
+
+
+### start timer
+t1 = time()
+
+### use the trained classifier to predict labels for the test features
+pred = clf.predict(features)
+
+### stop timer
+print('Prediction Time: ', round(time() - t1, 3), "s")
+
+### calculate and return the accuracy on the test data
+accuracy = clf.score(features, labels)
+
+
+print(accuracy)
 
