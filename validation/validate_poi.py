@@ -16,6 +16,7 @@ from feature_format import featureFormat, targetFeatureSplit
 from sklearn import tree
 from time import time
 from sklearn.cross_validation import train_test_split
+from sklearn import metrics
 
 data_dict = pickle.load(open("../final_project/final_project_dataset.pkl", "r") )
 
@@ -78,3 +79,10 @@ for i in range(len(pred)):
             
 print('Number of True Positives = '
       + str(true_positive_count))
+
+print('Percision = '
+      + str(metrics.precision_score(labels_test, pred)))
+
+print('Recall = '
+      + str(metrics.recall_score(labels_test, pred)))
+
