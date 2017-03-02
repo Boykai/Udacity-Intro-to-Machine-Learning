@@ -57,5 +57,11 @@ print('Prediction Time: ', round(time() - t1, 3), "s")
 accuracy = clf.score(features_test, labels_test)
 
 
-print(accuracy)
+print('Accuracy = '
+      + str(accuracy))
+
+
+# print number of POI predicted by DT
+print('Number of predicted POI = '
+      + str(sum(pred)))
 
