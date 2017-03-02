@@ -67,4 +67,18 @@ accuracy = clf.score(features_test, labels_test)
 
 print('Decision Tree accuracy = ' + str(accuracy))
 
+# find the max feature importance value and index for the DT 
+feature_importances = clf.feature_importances_
+feature_importances_max_value = max(feature_importances)
+feature_importances_max_index = 0
+
+for i in range(len(feature_importances)):
+    if feature_importances_max_value == feature_importances[i]:
+        feature_importances_max_index = i
+
+print('Highest feature importance value = '
+      + str(feature_importances_max_value))
+
+print('Highest feature importance index = '
+      + str(feature_importances_max_index))
 
