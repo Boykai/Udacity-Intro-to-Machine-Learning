@@ -65,3 +65,6 @@ print('Accuracy = '
 print('Number of predicted POI = '
       + str(sum(pred)))
 
+print('Number of poeple in test set = '
+      + str(len(labels_test)))
+
