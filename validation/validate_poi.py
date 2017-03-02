@@ -68,3 +68,13 @@ print('Number of predicted POI = '
 print('Number of poeple in test set = '
       + str(len(labels_test)))
 
+# print out the number of true positives
+true_positive_count = 0
+
+for i in range(len(pred)):
+    if pred[i]:
+        if labels_test[i]:
+            true_positive_count += 1
+            
+print('Number of True Positives = '
+      + str(true_positive_count))
