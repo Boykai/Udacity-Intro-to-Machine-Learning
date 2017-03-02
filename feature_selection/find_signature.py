@@ -82,3 +82,7 @@ print('Highest feature importance value = '
 print('Highest feature importance index = '
       + str(feature_importances_max_index))
 
+# examine the string of the highest feature value
+print('String of the highest feature value = '
+      + str(vectorizer.get_feature_names()[feature_importances_max_index]))
+
