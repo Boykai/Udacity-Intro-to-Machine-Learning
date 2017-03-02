@@ -53,7 +53,8 @@ for name, from_person in [('sara', from_sara), ('chris', from_chris)]:
             
             ### use str.replace() to remove any instances of the words
             ### ['sara', 'shackleton', 'chris', 'germani']
-            words_to_delete = ['sara', 'shackleton', 'chris', 'germani']
+            words_to_delete = ['sara', 'shackleton', 'chris', 'germani', 
+                               'sshacklensf']
             for word in words_to_delete:
                 current_email = current_email.replace(word, '')
             
