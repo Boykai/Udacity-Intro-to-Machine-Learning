@@ -17,6 +17,10 @@ with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
 ### Task 2: Remove outliers
+for person in data_dict:
+    print('\n\n' 
+          + str(person)
+          + str(data_dict[person]))
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
 my_dataset = data_dict
