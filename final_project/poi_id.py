@@ -2,8 +2,7 @@
 
 import sys
 import pickle
-import pandas as pd
-from pandas.tools.plotting import scatter_matrix
+from sklearn import metrics
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
@@ -13,15 +12,14 @@ from tester import dump_classifier_and_data
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
 
-# Using ALL the feature for first iteration
+# Using ALL the feature for first iteration, except 'email_address'
 features_list = ['poi', 'salary', 'to_messages', 'deferral_payments',
                  'total_payments', 'exercised_stock_options', 'bonus',
                  'restricted_stock', 'shared_receipt_with_poi',
                  'restricted_stock_deferred', 'total_stock_value',
                  'expenses', 'loan_advances', 'from_messages', 'other',
                  'from_this_person_to_poi', 'director_fees', 'deferred_income',
-                 'long_term_incentive', 'email_address',
-                 'from_poi_to_this_person']
+                 'long_term_incentive', 'from_poi_to_this_person']
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -45,10 +43,27 @@ labels, features = targetFeatureSplit(data)
 ### Note that if you want to do PCA or other multi-stage operations,
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
+def evaluateClf(classifer, feats_test, labs_test, prediction):
+    accuracy = classifer.score(feats_test, labs_test)
+    precision = metrics.precision_score(labels_test, prediction)
+    recall = metrics.recall_score(labels_test, pred)
+    
+    print('Accuracy = ' + str(accuracy))
+    print('Percision = ' + str(precision))
+    print('Recall = ' + str(recall))
+
 
 # Provided to give you a starting point. Try a variety of classifiers.
+from sklearn.cross_validation import train_test_split
+features_train, features_test, labels_train, labels_test = \
+    train_test_split(features, labels, test_size=0.3, random_state=42)
+    
 from sklearn.naive_bayes import GaussianNB
 clf = GaussianNB()
+clf.fit(features_train, labels_train)
+pred = clf.predict(features_test)
+
+evaluateClf(clf, features_test, labels_test, pred)
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
