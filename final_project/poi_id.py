@@ -2,6 +2,8 @@
 
 import sys
 import pickle
+import pandas as pd
+from pandas.tools.plotting import scatter_matrix
 sys.path.append("../tools/")
 
 from feature_format import featureFormat, targetFeatureSplit
@@ -10,19 +12,28 @@ from tester import dump_classifier_and_data
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-features_list = ['poi','salary'] # You will need to use more features
+
+# Using ALL the feature for first iteration
+features_list = ['poi', 'salary', 'to_messages', 'deferral_payments',
+                 'total_payments', 'exercised_stock_options', 'bonus',
+                 'restricted_stock', 'shared_receipt_with_poi',
+                 'restricted_stock_deferred', 'total_stock_value',
+                 'expenses', 'loan_advances', 'from_messages', 'other',
+                 'from_this_person_to_poi', 'director_fees', 'deferred_income',
+                 'long_term_incentive', 'email_address',
+                 'from_poi_to_this_person']
 
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
 ### Task 2: Remove outliers
-for person in data_dict:
-    print('\n\n' 
-          + str(person)
-          + str(data_dict[person]))
+# Not removing ANY outliers for first iteration 
+
+
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
+# Not adding ANY new features for first iteration
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
