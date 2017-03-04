@@ -7,6 +7,7 @@ sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 
+
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
@@ -30,6 +31,7 @@ features_list = ['poi', 'salary', 'to_messages', 'deferral_payments',
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
+    
 ### Task 2: Remove outliers
 '''
 1. Not removing ANY outliers for first iteration 
@@ -41,17 +43,39 @@ with open("final_project_dataset.pkl", "r") as data_file:
 print('Removing "TOTAL"...' + str(data_dict['TOTAL']))
 data_dict.pop('TOTAL', 0)
 
+
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
 '''
 1. Not adding ANY new features for first iteration
+2. Create new feature, ratio of poi emails to total emails
 '''
+
+# Find ratio of poi emails to total emails
+for person in data_dict:
+    ratio_poi_to_total_emails = 0.0
+    features = data_dict[person]
+    
+    # Check value is int for email count features
+    if isinstance(features['from_this_person_to_poi'], (int, long)) and \
+       isinstance(features['from_poi_to_this_person'], (int, long)):
+        total_poi_emails = float(features['from_this_person_to_poi']) \
+                           + float(features['from_poi_to_this_person'])
+
+        if total_poi_emails:
+            total_emails = float(features['to_messages']) \
+                           + float(features['from_messages'])
+            ratio_poi_to_total_emails = total_poi_emails / total_emails
+
+    features['poi email ratio'] = round(ratio_poi_to_total_emails, 5)
+
 
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
+
 
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
@@ -135,6 +159,8 @@ clf = AdaBoostClassifier()
 clf.fit(features_train, labels_train)
 pred = clf.predict(features_test)
 evaluateClf(clf, features_test, labels_test, pred)    
+
+
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
@@ -146,6 +172,7 @@ evaluateClf(clf, features_test, labels_test, pred)
 from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
+
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
