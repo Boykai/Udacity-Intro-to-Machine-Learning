@@ -9,11 +9,11 @@ from tester import dump_classifier_and_data
 import numpy as np
 from sklearn.grid_search import GridSearchCV
 
-
+'''
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-''' 
+
 1. Started by using ALL the feature for first iteration
 2. After attempting to run feature_format, removed 'email_address' feature
    due to this feature throwing an error
@@ -33,9 +33,9 @@ features_list = ['poi', 'salary', 'to_messages', 'deferral_payments',
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
-    
+''' 
 ### Task 2: Remove outliers
-'''
+
 1. Not removing ANY outliers for first iteration 
 2. Remove 'TOTAL' from the dataset. It biases the dataset due to it being a 
    total of all the features for all of the samples
@@ -45,10 +45,10 @@ with open("final_project_dataset.pkl", "r") as data_file:
 print('Removing "TOTAL"...' + str(data_dict['TOTAL']))
 data_dict.pop('TOTAL', 0)
 
-
+'''
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
-'''
+
 1. Not adding ANY new features for first iteration
 2. Create new feature, ratio of poi emails to total emails
 '''
@@ -69,24 +69,24 @@ for person in data_dict:
             total_emails = float(person_features['to_messages']) \
                            + float(person_features['from_messages'])
             ratio_poi_to_total_emails = total_poi_emails / total_emails
+    
     person_count += 1
-    print('person count = ' + str(person_count))
     person_features['poi email ratio'] = round(ratio_poi_to_total_emails, 5)
 
-
+print('person count = ' + str(person_count))
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
 labels, features = targetFeatureSplit(data)
 
-
+'''
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
 ### Note that if you want to do PCA or other multi-stage operations,
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
-'''
+
 1. Created evaluateClf method in order to print out evaluation metrics
    for different ML classifers while keeping the code DRY
 '''
@@ -133,7 +133,6 @@ features_train, features_test, labels_train, labels_test = \
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -143,7 +142,6 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 classifiers = [
     KNeighborsClassifier(2),
     SVC(),
-    GaussianProcessClassifier(),
     DecisionTreeClassifier(),
     RandomForestClassifier(),
     MLPClassifier(alpha=1),
@@ -164,28 +162,34 @@ clf.fit(features_train, labels_train)
 pred = clf.predict(features_test)
 evaluateClf(clf, features_test, labels_test, pred)    
 
-
+'''
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
 ### function. Because of the small size of the dataset, the script uses
 ### stratified shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
-params_list = []
+'''
 
 # Create parameter grid options for each classifer, store in params_list
-kneighbors_parameters = dict(metric = ['minkowski','euclidean','manhattan'], \
+params_list = []
+
+kneighbors_params = dict(metric = ['minkowski','euclidean','manhattan'], \
                          weights = ['uniform', 'distance'], \
                          n_neighbors = np.arange(2, 10), \
                          algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
-params_list.append(kneighbors_parameters)
+params_list.append(kneighbors_params)
 
-SVC_parameters = dict(C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000], \
+svc_params = dict(C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000], \
                       gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1], \
                       kernel= ['rbf'], 
                       class_weight = ['balanced'])
-params_list.append(SVC_parameters)
+params_list.append(svc_params)
 
+decision_tree_params = dict(criterion = ['gini', 'entropy'], \
+                            max_features = ['sqrt', 'log2', None],
+                            class_weight = ['balanced', None])
+params_list.append(decision_tree_params)
 
 for i in range(len(params_list)):
     clf = GridSearchCV(classifiers[i], param_grid = params_list[i])
