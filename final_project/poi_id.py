@@ -12,7 +12,11 @@ from tester import dump_classifier_and_data
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
 
-# Using ALL the feature for first iteration, except 'email_address'
+''' 
+1. Started by using ALL the feature for first iteration
+2. After attempting to run feature_format, removed 'email_address' feature
+   due to this feature throwing an error
+'''
 features_list = ['poi', 'salary', 'to_messages', 'deferral_payments',
                  'total_payments', 'exercised_stock_options', 'bonus',
                  'restricted_stock', 'shared_receipt_with_poi',
@@ -26,12 +30,16 @@ with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
 ### Task 2: Remove outliers
-# Not removing ANY outliers for first iteration 
-
+'''
+1. Not removing ANY outliers for first iteration 
+'''
 
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
-# Not adding ANY new features for first iteration
+'''
+1. Not adding ANY new features for first iteration
+'''
+
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
@@ -43,17 +51,43 @@ labels, features = targetFeatureSplit(data)
 ### Note that if you want to do PCA or other multi-stage operations,
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
-def evaluateClf(classifer, feats_test, labs_test, prediction):
+'''
+1. Created evaluateClf method in order to print out evaluation metrics
+   for different ML classifers while keeping the code DRY
+'''
+def evaluateClf(classifer, feats_test, labs_test, predictions):
+    '''
+    Evaluates ML classifer using different metrics, such as:
+        Accuracy
+        Precision
+        Recall
+        F1 Score
+        
+        classifer: ML classifer model object (an object)
+        
+        feats_test: List of feature values within the test subset (a list)
+
+        labs_test: List of label values within the test subset (a list)
+        
+        prediction: List of prediction label values based on the test subset
+                    (a list)
+    '''
     accuracy = classifer.score(feats_test, labs_test)
-    precision = metrics.precision_score(labels_test, prediction)
-    recall = metrics.recall_score(labels_test, pred)
+    precision = metrics.precision_score(labs_test, predictions)
+    recall = metrics.recall_score(labs_test, predictions)
+    f1_score = metrics.f1_score(labs_test, predictions)
     
+    print('\n' + str(type(classifer)))
     print('Accuracy = ' + str(accuracy))
     print('Percision = ' + str(precision))
     print('Recall = ' + str(recall))
+    print('F1 Score = ' + str(f1_score))
 
 
 # Provided to give you a starting point. Try a variety of classifiers.
+'''
+1. Created an basic instance of some classifer models
+'''
 from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
