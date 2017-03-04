@@ -6,6 +6,8 @@ from sklearn import metrics
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
+import numpy as np
+from sklearn.grid_search import GridSearchCV
 
 
 ### Task 1: Select what features you'll use.
@@ -52,22 +54,24 @@ data_dict.pop('TOTAL', 0)
 '''
 
 # Find ratio of poi emails to total emails
+person_count = 0
 for person in data_dict:
     ratio_poi_to_total_emails = 0.0
-    features = data_dict[person]
+    person_features = data_dict[person]
     
     # Check value is int for email count features
-    if isinstance(features['from_this_person_to_poi'], (int, long)) and \
-       isinstance(features['from_poi_to_this_person'], (int, long)):
-        total_poi_emails = float(features['from_this_person_to_poi']) \
-                           + float(features['from_poi_to_this_person'])
+    if isinstance(person_features['from_this_person_to_poi'], (int, long)) and \
+       isinstance(person_features['from_poi_to_this_person'], (int, long)):
+        total_poi_emails = float(person_features['from_this_person_to_poi']) \
+                           + float(person_features['from_poi_to_this_person'])
 
         if total_poi_emails:
-            total_emails = float(features['to_messages']) \
-                           + float(features['from_messages'])
+            total_emails = float(person_features['to_messages']) \
+                           + float(person_features['from_messages'])
             ratio_poi_to_total_emails = total_poi_emails / total_emails
-
-    features['poi email ratio'] = round(ratio_poi_to_total_emails, 5)
+    person_count += 1
+    print('person count = ' + str(person_count))
+    person_features['poi email ratio'] = round(ratio_poi_to_total_emails, 5)
 
 
 my_dataset = data_dict
@@ -167,6 +171,20 @@ evaluateClf(clf, features_test, labels_test, pred)
 ### function. Because of the small size of the dataset, the script uses
 ### stratified shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+kneighbors_parameters = dict(metric = ['minkowski','euclidean','manhattan'], \
+                         weights = ['uniform', 'distance'], \
+                         n_neighbors = np.arange(2, 10), \
+                         algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
+
+clf = GridSearchCV(KNeighborsClassifier(), param_grid = kneighbors_parameters)
+clf.fit(features_train, labels_train)
+
+print(clf.best_estimator_)
+
+pred = clf.predict(features_test)
+
+evaluateClf(clf, features_test, labels_test, pred)
+
 
 # Example starting point. Try investigating other evaluation techniques!
 from sklearn.cross_validation import train_test_split
