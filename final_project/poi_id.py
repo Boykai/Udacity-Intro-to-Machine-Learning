@@ -171,19 +171,30 @@ evaluateClf(clf, features_test, labels_test, pred)
 ### function. Because of the small size of the dataset, the script uses
 ### stratified shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+params_list = []
+
+# Create parameter grid options for each classifer, store in params_list
 kneighbors_parameters = dict(metric = ['minkowski','euclidean','manhattan'], \
                          weights = ['uniform', 'distance'], \
                          n_neighbors = np.arange(2, 10), \
                          algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
+params_list.append(kneighbors_parameters)
 
-clf = GridSearchCV(KNeighborsClassifier(), param_grid = kneighbors_parameters)
-clf.fit(features_train, labels_train)
+SVC_parameters = dict(C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000], \
+                      gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1], \
+                      kernel= ['rbf'], 
+                      class_weight = ['balanced'])
+params_list.append(SVC_parameters)
 
-print(clf.best_estimator_)
 
-pred = clf.predict(features_test)
+for i in range(len(params_list)):
+    clf = GridSearchCV(classifiers[i], param_grid = params_list[i])
+    clf.fit(features_train, labels_train)
 
-evaluateClf(clf, features_test, labels_test, pred)
+    print(clf.best_estimator_)
+
+    pred = clf.predict(features_test)
+    evaluateClf(clf, features_test, labels_test, pred)
 
 
 # Example starting point. Try investigating other evaluation techniques!
