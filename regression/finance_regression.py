@@ -49,6 +49,9 @@ print('The slope for the linear regession model is '
 print('The intercept for the linear regression model is '
       + str(reg.intercept_))
 
+print('The r squared value is '
+      + str(r))
+
 ### draw the scatterplot, with color-coded training and testing points
 import matplotlib.pyplot as plt
 for feature, target in zip(feature_test, target_test):

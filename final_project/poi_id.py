@@ -32,7 +32,42 @@ with open("final_project_dataset.pkl", "r") as data_file:
 ### Task 2: Remove outliers
 '''
 1. Not removing ANY outliers for first iteration 
+2. Remove 'TOTAL' from the dataset. It biases the dataset due to it being a 
+   total of all the features for all of the samples
+2. Define method for removing a percentage of various variable outliers 
+   after exploring the data visually and through regression
 '''
+# Print and remove 'TOTAL' from dataset
+print(data_dict['TOTAL'])
+data_dict.pop('TOTAL', 0)
+
+def outlierCleaner(predictions, var1, var2):
+    """
+        Clean away the 10% of points that have the largest
+        residual errors (difference between the prediction
+        and the actual var2).
+
+        @Return: a list of tuples named cleaned_data where 
+        each tuple is of the form (var1, var2, error).
+    """
+    
+    cleaned_data = []
+    
+    # Get the errors of predictions to net_worth
+    errors = abs(predictions - var2)
+
+    sorted_errors = sorted(errors)
+
+    # Get the lowest 90% of errors, cut off highest 10% of errors
+    percent_of_errors = sorted_errors[ : int(len(sorted_errors) * 0.9)]
+
+    # Store all age, net_worth, error values in list if error is in lower 90%
+    for i in range(len(errors)):
+        if errors[i] <= percent_of_errors[-1]:
+                cleaned_data.append((var1[i], var2[i], errors[i]))
+    
+    return cleaned_data
+
 
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
