@@ -108,6 +108,15 @@ pred = clf.predict(features_test)
 
 evaluateClf(clf, features_test, labels_test, pred)
 
+# SVM Classifer Implimentation
+from sklearn.svm import SVC
+clf = SVC()
+clf.fit(features_train, labels_train)
+pred = clf.predict(features_test)
+
+evaluateClf(clf, features_test, labels_test, pred)
+
+
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
