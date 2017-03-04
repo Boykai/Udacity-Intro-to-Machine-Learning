@@ -183,14 +183,23 @@ params_list.append(kneighbors_params)
 svc_params = dict(C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000], \
                       gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1], \
                       kernel= ['rbf'], 
-                      class_weight = ['balanced'])
+                      class_weight = ['balanced', None], \
+                      random_state = [42])
 params_list.append(svc_params)
 
 decision_tree_params = dict(criterion = ['gini', 'entropy'], \
                             max_features = ['sqrt', 'log2', None],
-                            class_weight = ['balanced', None])
+                            class_weight = ['balanced', None], \
+                            random_state = [42])
 params_list.append(decision_tree_params)
 
+random_forest_params = dict(n_estimators = np.arange(10, 50, 10),
+                             criterion = ['gini', 'entropy'],
+                             max_features = ['sqrt', 'log2', None],
+                             class_weight = ['balanced', None], \
+                             random_state = [42])
+params_list.append(random_forest_params)
+                             
 for i in range(len(params_list)):
     clf = GridSearchCV(classifiers[i], param_grid = params_list[i])
     clf.fit(features_train, labels_train)
