@@ -92,31 +92,42 @@ from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
-# GaussianNB Classifer Implimenation    
-from sklearn.naive_bayes import GaussianNB
-clf = GaussianNB()
-clf.fit(features_train, labels_train)
-pred = clf.predict(features_test)
 
-evaluateClf(clf, features_test, labels_test, pred)
 
-# Decision Tree Classifer Implimenation
-from sklearn import tree
-clf = tree.DecisionTreeClassifier()
-clf.fit(features_train, labels_train)
-pred = clf.predict(features_test)
-
-evaluateClf(clf, features_test, labels_test, pred)
-
-# SVM Classifer Implimentation
+# Import classifer model libraries
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-clf = SVC()
+from sklearn.gaussian_process import GaussianProcessClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+
+# Create list of basic classifers
+classifiers = [
+    KNeighborsClassifier(2),
+    SVC(),
+    GaussianProcessClassifier(),
+    DecisionTreeClassifier(),
+    RandomForestClassifier(),
+    MLPClassifier(alpha=1),
+    AdaBoostClassifier(),
+    GaussianNB(),
+    QuadraticDiscriminantAnalysis()]
+    
+# Interate over each basic model to see which ones perform best
+for model in classifiers:
+    clf = model
+    clf.fit(features_train, labels_train)
+    pred = clf.predict(features_test)
+    evaluateClf(clf, features_test, labels_test, pred)
+
+    
+clf = AdaBoostClassifier()
 clf.fit(features_train, labels_train)
 pred = clf.predict(features_test)
-
-evaluateClf(clf, features_test, labels_test, pred)
-
-
+evaluateClf(clf, features_test, labels_test, pred)    
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
