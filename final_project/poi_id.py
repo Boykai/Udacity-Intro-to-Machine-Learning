@@ -4,19 +4,20 @@ import sys
 import pickle
 from sklearn import metrics
 sys.path.append("../tools/")
-
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
-
 ''' 
 1. Started by using ALL the feature for first iteration
 2. After attempting to run feature_format, removed 'email_address' feature
    due to this feature throwing an error
 '''
+
+# Create feature list to include needed features for classifer
+# 'poi' must be first feature within the list
 features_list = ['poi', 'salary', 'to_messages', 'deferral_payments',
                  'total_payments', 'exercised_stock_options', 'bonus',
                  'restricted_stock', 'shared_receipt_with_poi',
@@ -35,10 +36,10 @@ with open("final_project_dataset.pkl", "r") as data_file:
 2. Remove 'TOTAL' from the dataset. It biases the dataset due to it being a 
    total of all the features for all of the samples
 '''
+
 # Print and remove 'TOTAL' from dataset
 print('Removing "TOTAL"...' + str(data_dict['TOTAL']))
 data_dict.pop('TOTAL', 0)
-
 
 ### Task 3: Create new feature(s)
 ### Store to my_dataset for easy export below.
@@ -61,6 +62,8 @@ labels, features = targetFeatureSplit(data)
 1. Created evaluateClf method in order to print out evaluation metrics
    for different ML classifers while keeping the code DRY
 '''
+
+# Method to print classifer elvaluation metrics
 def evaluateClf(classifer, feats_test, labs_test, predictions):
     '''
     Evaluates ML classifer using different metrics, such as:
@@ -89,16 +92,14 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
     print('Recall = ' + str(recall))
     print('F1 Score = ' + str(f1_score))
 
-
 # Provided to give you a starting point. Try a variety of classifiers.
 '''
 1. Created an basic instance of some classifer models
 '''
+# Split data into training and testing sets
 from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
-
-
 
 # Import classifer model libraries
 from sklearn.neural_network import MLPClassifier
@@ -129,7 +130,7 @@ for model in classifiers:
     pred = clf.predict(features_test)
     evaluateClf(clf, features_test, labels_test, pred)
 
-    
+# Final classifer to be used    
 clf = AdaBoostClassifier()
 clf.fit(features_train, labels_train)
 pred = clf.predict(features_test)
