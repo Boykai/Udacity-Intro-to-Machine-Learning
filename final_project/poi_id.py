@@ -8,6 +8,7 @@ from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 import numpy as np
 from sklearn.grid_search import GridSearchCV
+import tester
 
 '''
 ### Task 1: Select what features you'll use.
@@ -55,9 +56,11 @@ data_dict.pop('TOTAL', 0)
 
 # Find ratio of poi emails to total emails
 person_count = 0
-for person in data_dict:
+mutated_data_dict = data_dict.copy()
+
+for person in mutated_data_dict:
     ratio_poi_to_total_emails = 0.0
-    person_features = data_dict[person]
+    person_features = mutated_data_dict[person]
     
     # Check value is int for email count features
     if isinstance(person_features['from_this_person_to_poi'], (int, long)) and \
@@ -113,12 +116,14 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
     precision = metrics.precision_score(labs_test, predictions)
     recall = metrics.recall_score(labs_test, predictions)
     f1_score = metrics.f1_score(labs_test, predictions)
+    roc_auc = metrics.roc_auc_score(labs_test, predictions)
     
     print('\n' + str(type(classifer)))
     print('Accuracy = ' + str(accuracy))
     print('Percision = ' + str(precision))
     print('Recall = ' + str(recall))
     print('F1 Score = ' + str(f1_score))
+    print('ROC Curve AUC = ' + str(roc_auc))
 
 # Provided to give you a starting point. Try a variety of classifiers.
 '''
@@ -136,7 +141,6 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 # Create list of basic classifers
 classifiers = [
@@ -144,10 +148,9 @@ classifiers = [
     SVC(),
     DecisionTreeClassifier(),
     RandomForestClassifier(),
-    MLPClassifier(alpha=1),
+    MLPClassifier(),
     AdaBoostClassifier(),
-    GaussianNB(),
-    QuadraticDiscriminantAnalysis()]
+    GaussianNB()]
     
 # Interate over each basic model to see which ones perform best
 for model in classifiers:
@@ -156,11 +159,6 @@ for model in classifiers:
     pred = clf.predict(features_test)
     evaluateClf(clf, features_test, labels_test, pred)
 
-# Final classifer to be used    
-clf = AdaBoostClassifier()
-clf.fit(features_train, labels_train)
-pred = clf.predict(features_test)
-evaluateClf(clf, features_test, labels_test, pred)    
 
 '''
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
@@ -174,40 +172,60 @@ evaluateClf(clf, features_test, labels_test, pred)
 # Create parameter grid options for each classifer, store in params_list
 params_list = []
 
-kneighbors_params = dict(metric = ['minkowski','euclidean','manhattan'], \
-                         weights = ['uniform', 'distance'], \
-                         n_neighbors = np.arange(2, 10), \
+# KNeighbors parameters for GridSearchCV
+kneighbors_params = dict(metric = ['minkowski','euclidean','manhattan'], 
+                         weights = ['uniform', 'distance'],
+                         n_neighbors = np.arange(2, 10),
                          algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
 params_list.append(kneighbors_params)
 
-svc_params = dict(C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000], \
-                      gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1], \
+# SVM parameters for GridSearchCV
+svc_params = dict(C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
+                      gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
                       kernel= ['rbf'], 
-                      class_weight = ['balanced', None], \
-                      random_state = [42])
+                      class_weight = ['balanced', None])
 params_list.append(svc_params)
 
-decision_tree_params = dict(criterion = ['gini', 'entropy'], \
+# Decision Tree parameters for GridSearchCV
+decision_tree_params = dict(criterion = ['gini', 'entropy'],
                             max_features = ['sqrt', 'log2', None],
-                            class_weight = ['balanced', None], \
-                            random_state = [42])
+                            class_weight = ['balanced', None])
 params_list.append(decision_tree_params)
 
+# Random Forest parameters for GridSearchCV
 random_forest_params = dict(n_estimators = np.arange(10, 50, 10),
                              criterion = ['gini', 'entropy'],
                              max_features = ['sqrt', 'log2', None],
-                             class_weight = ['balanced', None], \
-                             random_state = [42])
+                             class_weight = ['balanced', None])
 params_list.append(random_forest_params)
+
+# Neural Network parameters for GridSearchCV
+neural_network_params = dict(hidden_layer_sizes = [(100,), (200,)],
+                             solver = ['lbfgs', 'sgd', 'adam'],
+                             alpha = (0.0001, 0.001, 0.01, 0.1, 1),
+                             learning_rate = ['constant', 'invscaling', 'adaptive'],
+                             max_iter = np.arange(10, 50, 5))
+params_list.append(neural_network_params)
+
+# Adaboost parameters for GridSearchCV
+adaboost_params = dict(n_estimators = np.arange(10, 150, 10),
+                       algorithm = ['SAMME', 'SAMME.R'])
+params_list.append(adaboost_params)
+
+# Naive Bayes parameters for GridSearchCV
+naive_bayes_params = dict()
+params_list.append(naive_bayes_params)
                              
 for i in range(len(params_list)):
-    clf = GridSearchCV(classifiers[i], param_grid = params_list[i])
-    clf.fit(features_train, labels_train)
+    grid = GridSearchCV(classifiers[i], param_grid = params_list[i])
+    grid.fit(features_train, labels_train)
 
-    print(clf.best_estimator_)
+    print('\n' + str(type(classifiers[i])))
+    print(grid.best_estimator_)
 
-    pred = clf.predict(features_test)
-    evaluateClf(clf, features_test, labels_test, pred)
+    pred = grid.predict(features_test)
+    evaluateClf(grid, features_test, labels_test, pred)
+
 
 
 # Example starting point. Try investigating other evaluation techniques!
@@ -215,6 +233,10 @@ from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
+# Final classifer to be used    
+clf = GaussianNB()
+clf.fit(features_train, labels_train)
+pred = clf.predict(features_test)
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
