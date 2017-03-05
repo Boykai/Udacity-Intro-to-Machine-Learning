@@ -8,7 +8,8 @@ from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 import numpy as np
 from sklearn.grid_search import GridSearchCV
-import tester
+from sklearn.pipeline import Pipeline
+from sklearn.decomposition import PCA
 
 '''
 ### Task 1: Select what features you'll use.
@@ -215,9 +216,12 @@ params_list.append(adaboost_params)
 # Naive Bayes parameters for GridSearchCV
 naive_bayes_params = dict()
 params_list.append(naive_bayes_params)
-                             
+
+# Iterate over each classifier and their parameters, aplly PCA and GridsearchCV                             
 for i in range(len(params_list)):
-    grid = GridSearchCV(classifiers[i], param_grid = params_list[i])
+    estimators = [('reduce_dim', PCA()), ('clf', classifiers[i])]
+    pipe = Pipeline(estimators) 
+    grid = GridSearchCV(pipe, param_grid = params_list[i])
     grid.fit(features_train, labels_train)
 
     print('\n' + str(type(classifiers[i])))
@@ -233,10 +237,10 @@ from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
-# Final classifer to be used    
-clf = GaussianNB()
-clf.fit(features_train, labels_train)
-pred = clf.predict(features_test)
+# Final classifer to be used
+estimators = [('reduce_dim', PCA()), ('clf', SVC())]
+pipe = Pipeline(estimators)  
+
 
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
