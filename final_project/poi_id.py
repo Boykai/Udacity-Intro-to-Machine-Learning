@@ -6,6 +6,7 @@ from sklearn import metrics
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
+from tester import test_classifier
 import numpy as np
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
@@ -174,63 +175,70 @@ for model in classifiers:
 params_list = []
 
 # KNeighbors parameters for GridSearchCV
-kneighbors_params = dict(metric = ['minkowski','euclidean','manhattan'], 
-                         weights = ['uniform', 'distance'],
-                         n_neighbors = np.arange(2, 10),
-                         algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
+kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'], 
+                         clf__weights = ['uniform', 'distance'],
+                         clf__n_neighbors = np.arange(2, 10),
+                         clf__algorithm = ['auto', 'ball_tree', 'kd_tree','brute'],
+                         reduce_dim__n_components = np.arange(5, len(features_list), 5))
 params_list.append(kneighbors_params)
 
 # SVM parameters for GridSearchCV
-svc_params = dict(C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
-                      gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
-                      kernel= ['rbf'], 
-                      class_weight = ['balanced', None])
+svc_params = dict(clf__C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
+                      clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
+                      clf__kernel= ['rbf'], 
+                      clf__class_weight = ['balanced', None],
+                      reduce_dim__n_components = np.arange(5, len(features_list), 5))
 params_list.append(svc_params)
 
 # Decision Tree parameters for GridSearchCV
-decision_tree_params = dict(criterion = ['gini', 'entropy'],
-                            max_features = ['sqrt', 'log2', None],
-                            class_weight = ['balanced', None])
+decision_tree_params = dict(clf__criterion = ['gini', 'entropy'],
+                            clf__max_features = ['sqrt', 'log2', None],
+                            clf__class_weight = ['balanced', None],
+                            reduce_dim__n_components = np.arange(5, len(features_list), 5))
 params_list.append(decision_tree_params)
 
 # Random Forest parameters for GridSearchCV
-random_forest_params = dict(n_estimators = np.arange(10, 50, 10),
-                             criterion = ['gini', 'entropy'],
-                             max_features = ['sqrt', 'log2', None],
-                             class_weight = ['balanced', None])
+random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
+                             clf__criterion = ['gini', 'entropy'],
+                             clf__max_features = ['sqrt', 'log2', None],
+                             clf__class_weight = ['balanced', None],
+                             reduce_dim__n_components = np.arange(5, len(features_list), 5))
 params_list.append(random_forest_params)
 
 # Neural Network parameters for GridSearchCV
-neural_network_params = dict(hidden_layer_sizes = [(100,), (200,)],
-                             solver = ['lbfgs', 'sgd', 'adam'],
-                             alpha = (0.0001, 0.001, 0.01, 0.1, 1),
-                             learning_rate = ['constant', 'invscaling', 'adaptive'],
-                             max_iter = np.arange(10, 50, 5))
+neural_network_params = dict(clf__hidden_layer_sizes = [(100,), (200,)],
+                             clf__solver = ['lbfgs', 'sgd', 'adam'],
+                             clf__alpha = (0.0001, 0.001, 0.01, 0.1, 1),
+                             clf__learning_rate = ['constant', 'invscaling', 'adaptive'],
+                             clf__max_iter = np.arange(10, 50, 5),
+                             reduce_dim__n_components = np.arange(5, len(features_list), 5))
 params_list.append(neural_network_params)
 
 # Adaboost parameters for GridSearchCV
-adaboost_params = dict(n_estimators = np.arange(10, 150, 10),
-                       algorithm = ['SAMME', 'SAMME.R'])
+adaboost_params = dict(clf__n_estimators = np.arange(10, 150, 10),
+                       clf__algorithm = ['SAMME', 'SAMME.R'],
+                       reduce_dim__n_components = np.arange(5, len(features_list), 5))
 params_list.append(adaboost_params)
 
 # Naive Bayes parameters for GridSearchCV
-naive_bayes_params = dict()
+naive_bayes_params = dict(reduce_dim__n_components = np.arange(5, len(features_list), 5))
 params_list.append(naive_bayes_params)
 
 # Iterate over each classifier and their parameters, aplly PCA and GridsearchCV                             
 for i in range(len(params_list)):
+    print('\nCalculating parameters and PCA...')
+    print(str(type(classifiers[i])))
+    
     estimators = [('reduce_dim', PCA()), ('clf', classifiers[i])]
     pipe = Pipeline(estimators) 
     grid = GridSearchCV(pipe, param_grid = params_list[i])
     grid.fit(features_train, labels_train)
 
-    print('\n' + str(type(classifiers[i])))
-    print(grid.best_estimator_)
-
     pred = grid.predict(features_test)
-    evaluateClf(grid, features_test, labels_test, pred)
 
-
+    print('\n\nRunning Tester...\n' +str(type(classifiers[i])))
+    test_classifier(grid.best_estimator_, my_dataset, features_list)
+    
 
 # Example starting point. Try investigating other evaluation techniques!
 from sklearn.cross_validation import train_test_split
