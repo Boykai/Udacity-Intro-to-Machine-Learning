@@ -138,7 +138,6 @@ features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
 # Import classifer model libraries
-from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
@@ -151,7 +150,6 @@ classifiers = [
     SVC(),
     DecisionTreeClassifier(),
     RandomForestClassifier(),
-    #MLPClassifier(),
     AdaBoostClassifier(),
     GaussianNB()]
     
@@ -207,15 +205,6 @@ random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
                              clf__class_weight = ['balanced', None])
 random_forest_params.update(pca_params_list)
 params_list.append(random_forest_params)
-
-# Neural Network parameters for GridSearchCV
-neural_network_params = dict(clf__hidden_layer_sizes = [(100,), (200,)],
-                             clf__solver = ['lbfgs', 'sgd', 'adam'],
-                             clf__alpha = (0.0001, 0.001, 0.01, 0.1, 1),
-                             clf__learning_rate = ['constant', 'invscaling', 'adaptive'],
-                             clf__max_iter = np.arange(10, 50, 5))
-neural_network_params.update(pca_params_list)
-#params_list.append(neural_network_params)
 
 # Adaboost parameters for GridSearchCV
 adaboost_params = dict(clf__n_estimators = np.arange(10, 150, 10),
