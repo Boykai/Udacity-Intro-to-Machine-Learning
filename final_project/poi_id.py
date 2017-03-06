@@ -149,7 +149,7 @@ classifiers = [
     KNeighborsClassifier(2),
     SVC(),
     DecisionTreeClassifier(),
-    RandomForestClassifier(),
+    #RandomForestClassifier(),
     AdaBoostClassifier(),
     GaussianNB()]
     
@@ -172,7 +172,8 @@ for model in classifiers:
 
 # Create parameter grid options for each classifer, store in params_list
 params_list = []
-pca_params_list = dict(reduce_dim__n_components = np.arange(5, len(features_list), 5),
+pca_params_list = dict(reduce_dim__n_components = np.arange(1, len(features_list), 5),
+                       reduce_dim__whiten = [True, False],
                        reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'])
 
 # KNeighbors parameters for GridSearchCV
@@ -204,12 +205,14 @@ random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
                              clf__max_features = ['sqrt', 'log2', None],
                              clf__class_weight = ['balanced', None])
 random_forest_params.update(pca_params_list)
-params_list.append(random_forest_params)
+#params_list.append(random_forest_params)
 
 # Adaboost parameters for GridSearchCV
-adaboost_params = dict(clf__n_estimators = np.arange(10, 150, 10),
+adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
+                                              GaussianNB()],
+                       clf__n_estimators = np.arange(10, 150, 10),
                        clf__algorithm = ['SAMME', 'SAMME.R'])
-#adaboost_params.update(pca_params_list)
+adaboost_params.update(pca_params_list)
 params_list.append(adaboost_params)
 
 # Naive Bayes parameters for GridSearchCV
@@ -217,13 +220,16 @@ naive_bayes_params = dict()
 naive_bayes_params.update(pca_params_list)
 params_list.append(naive_bayes_params)
 
-# Iterate over each classifier and their parameters, apply PCA and GridsearchCV                             
+# Iterate over each classifier and their parameters, apply PCA and GridsearchCV
+best_estimators = {}
+best_estimator = 0.0                             
 for i in range(len(params_list)):
-    print('\nCalculating parameters and PCA...')
+    print('\nCalculating scaled features, classifier parameters, and PCA...')
     print(str(type(classifiers[i])))
     
     # Create pipeline and apply GridSearchCV
-    estimators = [('reduce_dim', PCA()), 
+    estimators = [('scalar', preprocessing.MinMaxScaler()),
+                  ('reduce_dim', PCA()), 
                   ('clf', classifiers[i])]
     pipe = Pipeline(estimators) 
     grid = GridSearchCV(pipe, 
@@ -239,9 +245,10 @@ for i in range(len(params_list)):
     pred = grid.predict(features_test)
 
     # Run test_classifer
-    print('\n\nRunning Tester...\n' +str(type(classifiers[i])))
+    print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
     test_classifier(grid.best_estimator_, my_dataset, features_list)
-    
+
+    best_estimators.update({type(classifiers[i]) : grid.best_estimator_})
 
 # Example starting point. Try investigating other evaluation techniques!
 from sklearn.cross_validation import train_test_split
@@ -249,13 +256,12 @@ features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
 
 # Final classifer to be used
-estimators = [('reduce_dim', PCA()), ('clf', SVC())]
-pipe = Pipeline(estimators)  
+clf = best_estimators[type(GaussianNB())]
 
-
+'''
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
 ### that the version of poi_id.py that you submit can be run on its own and
 ### generates the necessary .pkl files for validating your results.
-
+'''
 dump_classifier_and_data(clf, my_dataset, features_list)
