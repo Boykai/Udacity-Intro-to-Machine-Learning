@@ -11,7 +11,7 @@ import numpy as np
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
-
+from sklearn import preprocessing
 '''
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
@@ -151,7 +151,7 @@ classifiers = [
     SVC(),
     DecisionTreeClassifier(),
     RandomForestClassifier(),
-    MLPClassifier(),
+    #MLPClassifier(),
     AdaBoostClassifier(),
     GaussianNB()]
     
@@ -175,7 +175,6 @@ for model in classifiers:
 # Create parameter grid options for each classifer, store in params_list
 params_list = []
 pca_params_list = dict(reduce_dim__n_components = np.arange(5, len(features_list), 5),
-                       #reduce_dim__whiten = [True, False]
                        reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'])
 
 # KNeighbors parameters for GridSearchCV
@@ -216,7 +215,7 @@ neural_network_params = dict(clf__hidden_layer_sizes = [(100,), (200,)],
                              clf__learning_rate = ['constant', 'invscaling', 'adaptive'],
                              clf__max_iter = np.arange(10, 50, 5))
 neural_network_params.update(pca_params_list)
-params_list.append(neural_network_params)
+#params_list.append(neural_network_params)
 
 # Adaboost parameters for GridSearchCV
 adaboost_params = dict(clf__n_estimators = np.arange(10, 150, 10),
@@ -235,9 +234,13 @@ for i in range(len(params_list)):
     print(str(type(classifiers[i])))
     
     # Create pipeline and apply GridSearchCV
-    estimators = [('reduce_dim', PCA()), ('clf', classifiers[i])]
+    estimators = [('reduce_dim', PCA()), 
+                  ('clf', classifiers[i])]
     pipe = Pipeline(estimators) 
-    grid = GridSearchCV(pipe, param_grid = params_list[i])
+    grid = GridSearchCV(pipe, 
+                        param_grid = params_list[i], 
+                        scoring = 'f1',
+                        cv = 5)
     
     try:
         grid.fit(features_train, labels_train)
