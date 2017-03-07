@@ -148,7 +148,7 @@ from sklearn.naive_bayes import GaussianNB
 
 # Create list of basic classifers
 classifiers = [
-    KNeighborsClassifier(2),
+    #KNeighborsClassifier(2),
     SVC(),
     DecisionTreeClassifier(),
     #RandomForestClassifier(),
@@ -190,14 +190,14 @@ kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'],
                          clf__n_neighbors = np.arange(2, 10),
                          clf__algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
 kneighbors_params.update(feature_params_list)
-params_list.append(kneighbors_params)
+#params_list.append(kneighbors_params)
 
 # SVM parameters for GridSearchCV
 svc_params = dict(clf__C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
                       clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
                       clf__kernel= ['rbf'], 
                       clf__class_weight = ['balanced', None],
-                      clf__random_state = [42])
+                      clf__random_state = [0, 1, 10, 42])
 svc_params.update(feature_params_list)
 params_list.append(svc_params)
 
@@ -205,7 +205,7 @@ params_list.append(svc_params)
 decision_tree_params = dict(clf__criterion = ['gini', 'entropy'],
                             clf__max_features = ['sqrt', 'log2', None],
                             clf__class_weight = ['balanced', None],
-                            clf__random_state = [42])
+                            clf__random_state = [0, 1, 10, 42])
 decision_tree_params.update(feature_params_list)
 params_list.append(decision_tree_params)
 
@@ -214,16 +214,16 @@ random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
                              clf__criterion = ['gini', 'entropy'],
                              clf__max_features = ['sqrt', 'log2', None],
                              clf__class_weight = ['balanced', None],
-                             clf__random_state = [42])
-#random_forest_params.update(feature_params_list)
-params_list.append(random_forest_params)
+                             clf__random_state = [0, 1, 10, 42])
+random_forest_params.update(feature_params_list)
+#params_list.append(random_forest_params)
 
 # Adaboost parameters for GridSearchCV
 adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
                                               GaussianNB()],
                        clf__n_estimators = np.arange(10, 150, 10),
                        clf__algorithm = ['SAMME', 'SAMME.R'],
-                       clf__random_state = [42])
+                       clf__random_state = [0, 1, 10, 42])
 adaboost_params.update(feature_params_list)
 params_list.append(adaboost_params)
 
@@ -263,7 +263,9 @@ for i in range(len(params_list)):
     evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
     
     # Get features used in best estimator
-    print('The features used are: \n' + str(grid.best_estimator_.best_params['selector__k']))
+    features_selected_bool = grid.best_estimator_.named_steps['selector'].get_support()
+    features_selected_list = [x for x, y in zip(features_list[1:], features_selected_bool) if y]
+    print('The features used are: \n' + str(features_selected_list))
     
     # Run test_classifer
     print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
