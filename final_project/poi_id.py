@@ -148,10 +148,10 @@ from sklearn.naive_bayes import GaussianNB
 
 # Create list of basic classifers
 classifiers = [
-    #KNeighborsClassifier(2),
+    KNeighborsClassifier(2),
     SVC(),
     DecisionTreeClassifier(),
-    #RandomForestClassifier(),
+    RandomForestClassifier(),
     AdaBoostClassifier(),
     GaussianNB()]
     
@@ -171,7 +171,10 @@ for model in classifiers:
 ### stratified shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 '''
-
+'''
+# START OF TUNING MULTIPLE CLASSIFIER PIPELINE TYPES
+# UNCOMMENT THIS SECTION TO TUNE MULTIPLE CLASSIFIER PIPELINES
+### WARNING: RUNTIME MAY BE EXTREMELY LONG ###
 # Create parameter grid options for each classifer, store in params_list
 params_list = []
 feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
@@ -190,10 +193,10 @@ kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'],
                          clf__n_neighbors = np.arange(2, 10),
                          clf__algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
 kneighbors_params.update(feature_params_list)
-#params_list.append(kneighbors_params)
+params_list.append(kneighbors_params)
 
 # SVM parameters for GridSearchCV
-svc_params = dict(clf__C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
+svc_params = dict(clf__C = [0.00001, 0.0001, 0.001, 0.01, 0.1, 10, 100, 1000, 10000],
                       clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
                       clf__kernel= ['rbf'], 
                       clf__class_weight = ['balanced', None],
@@ -216,12 +219,13 @@ random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
                              clf__class_weight = ['balanced', None],
                              clf__random_state = [0, 1, 10, 42])
 random_forest_params.update(feature_params_list)
-#params_list.append(random_forest_params)
+params_list.append(random_forest_params)
 
 # Adaboost parameters for GridSearchCV
 adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
                                               GaussianNB()],
                        clf__n_estimators = np.arange(10, 150, 10),
+                       clf__classifier__learning_rate = [0.5,1.0,1.5,2.0],
                        clf__algorithm = ['SAMME', 'SAMME.R'],
                        clf__random_state = [0, 1, 10, 42])
 adaboost_params.update(feature_params_list)
@@ -263,6 +267,7 @@ for i in range(len(params_list)):
     evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
     
     # Get features used in best estimator
+    # https://discussions.udacity.com/t/how-to-find-out-the-features-selected-by-selectkbest/45118/4
     features_selected_bool = grid.best_estimator_.named_steps['selector'].get_support()
     features_selected_list = [x for x, y in zip(features_list[1:], features_selected_bool) if y]
     print('The features used are: \n' + str(features_selected_list))
@@ -274,51 +279,74 @@ for i in range(len(params_list)):
     best_estimators.update({f1_score : grid.best_estimator_})
     
     print('\nBest estimator = \n' + str(grid.best_estimator_))
+# END OF TUNING MULTIPLE CLASSIFIER PIPELINE TYPES
+'''
 
+# START OF FINAL TUNED CLASSIFIER
 # Example starting point. Try investigating other evaluation techniques!
 from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
-'''
+
 # Final classifer to be used
-svc_params = dict(clf__C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
-                      clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
-                      clf__kernel= ['rbf'], 
-                      clf__class_weight = ['balanced', None],
-                      clf__random_state = [42])
-svc_params.update(feature_params_list)
-params_list.append(svc_params)
+# Naive Bayes parameters for GridSearchCV
+final_params_list = []
+final_feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
+                           reduce_dim__whiten = [True, False],
+                           reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'],
+                           selector__k = [5, 10, 15, 'all'])
+final_naive_bayes_params = dict()
+final_naive_bayes_params.update(final_feature_params_list)
+final_params_list.append(final_naive_bayes_params)
 
 print('\nCalculating cross validation, scaled features, classifier parameters, and PCA...')
     
 # Create pipeline and apply GridSearchCV
 print('Calculating estimators...')
-estimators = [('scalar', preprocessing.MinMaxScaler()),
-              ('selector', SelectKBest()),
-              ('reduce_dim', PCA()), 
-              ('clf', SVC())]
+final_estimators = [('scalar', preprocessing.MinMaxScaler()),
+                    ('selector', SelectKBest()),
+                    ('reduce_dim', PCA()), 
+                    ('clf', GaussianNB())]
 
 print('Creating pipeline...')
-pipe = Pipeline(estimators) 
-print('Calculating grid search...')
-grid = GridSearchCV(pipe, 
-                    param_grid = params_list[0], 
-                    scoring = 'f1',
-                    cv = cv)
+final_pipe = Pipeline(final_estimators) 
 
+print('Creating cross validation function...')
+final_cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
+
+print('Calculating grid search...')
+grid = GridSearchCV(final_pipe, 
+                    param_grid = final_params_list, 
+                    scoring = 'f1',
+                    cv = final_cv)
+
+print('Fitting classifier to dataset...')
 try:
     grid.fit(features_train, labels_train)
 except:
     grid.fit(np.array(features_train), np.array(labels_train))
 
-pred = grid.best_estimator_.predict(features_test)
-evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
+print('Getting predictions for classifier of dataset...')
+final_pred = grid.best_estimator_.predict(features_test)
 
+print('Printing evaluation metrics for classifier on testing subset of dataset...')
+evaluateClf(grid.best_estimator_, features_test, labels_test, final_pred)
+
+# Get features used in best estimator
+# https://discussions.udacity.com/t/how-to-find-out-the-features-selected-by-selectkbest/45118/4
+features_selected_bool = grid.best_estimator_.named_steps['selector'].get_support()
+features_selected_list = [x for x, y in zip(features_list[1:], features_selected_bool) if y]
+features_scores = ['%.2f' % elem for elem in grid.best_estimator_.named_steps['selector'].scores_]
+features_selected_scores = [x for x, y in zip(features_scores, features_selected_bool) if y]
+print('The features used are: \n' + str(features_selected_list))
+print(features_selected_scores)
+
+# Set clf, pipeline object passed into tester.py for evaluation by grader
 clf = grid.best_estimator_
 
 print('Calculations finished.')
-#clf = best_estimators[best_f1]
-'''
+# END OF FINAL TUNED CLASSIFIER
+
 '''
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
