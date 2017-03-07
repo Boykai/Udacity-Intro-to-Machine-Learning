@@ -12,6 +12,8 @@ from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
+from sklearn.feature_selection import SelectKBest
+from sklearn.cross_validation import StratifiedShuffleSplit
 '''
 ### Task 1: Select what features you'll use.
 ### features_list is a list of strings, each of which is a feature name.
@@ -24,7 +26,7 @@ from sklearn import preprocessing
 
 # Create feature list to include needed features for classifer
 # 'poi' must be first feature within the list
-# Features removed later in PCA pipeline
+# Features removed later in KBest and PCA pipeline
 features_list = ['poi', 'salary', 'to_messages', 'deferral_payments',
                  'total_payments', 'exercised_stock_options', 'bonus',
                  'restricted_stock', 'shared_receipt_with_poi',
@@ -172,57 +174,66 @@ for model in classifiers:
 
 # Create parameter grid options for each classifer, store in params_list
 params_list = []
-pca_params_list = dict(reduce_dim__n_components = np.arange(1, len(features_list), 5),
-                       reduce_dim__whiten = [True, False],
-                       reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'])
+feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
+                           reduce_dim__whiten = [True, False],
+                           reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'])
+
+# Create cross validation metric
+print('Calculating cross valadation...')
+cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
+
 
 # KNeighbors parameters for GridSearchCV
 kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'], 
                          clf__weights = ['uniform', 'distance'],
                          clf__n_neighbors = np.arange(2, 10),
                          clf__algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
-kneighbors_params.update(pca_params_list)
+kneighbors_params.update(feature_params_list)
 params_list.append(kneighbors_params)
 
 # SVM parameters for GridSearchCV
 svc_params = dict(clf__C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
                       clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
                       clf__kernel= ['rbf'], 
-                      clf__class_weight = ['balanced', None])
-svc_params.update(pca_params_list)
+                      clf__class_weight = ['balanced', None],
+                      clf__random_state = 42)
+svc_params.update(feature_params_list)
 params_list.append(svc_params)
 
 # Decision Tree parameters for GridSearchCV
 decision_tree_params = dict(clf__criterion = ['gini', 'entropy'],
                             clf__max_features = ['sqrt', 'log2', None],
-                            clf__class_weight = ['balanced', None])
-decision_tree_params.update(pca_params_list)
+                            clf__class_weight = ['balanced', None],
+                            clf__random_state = [42])
+decision_tree_params.update(feature_params_list)
 params_list.append(decision_tree_params)
 
 # Random Forest parameters for GridSearchCV
 random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
                              clf__criterion = ['gini', 'entropy'],
                              clf__max_features = ['sqrt', 'log2', None],
-                             clf__class_weight = ['balanced', None])
-random_forest_params.update(pca_params_list)
-#params_list.append(random_forest_params)
+                             clf__class_weight = ['balanced', None],
+                             clf__random_state = [42])
+random_forest_params.update(feature_params_list)
+params_list.append(random_forest_params)
 
 # Adaboost parameters for GridSearchCV
 adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
                                               GaussianNB()],
                        clf__n_estimators = np.arange(10, 150, 10),
-                       clf__algorithm = ['SAMME', 'SAMME.R'])
-adaboost_params.update(pca_params_list)
+                       clf__algorithm = ['SAMME', 'SAMME.R'],
+                       clf__random_state = [42])
+adaboost_params.update(feature_params_list)
 params_list.append(adaboost_params)
 
 # Naive Bayes parameters for GridSearchCV
 naive_bayes_params = dict()
-naive_bayes_params.update(pca_params_list)
+naive_bayes_params.update(feature_params_list)
 params_list.append(naive_bayes_params)
 
 # Iterate over each classifier and their parameters, apply PCA and GridsearchCV
 best_estimators = {}
-best_estimator = 0.0                             
+
 for i in range(len(params_list)):
     print('\nCalculating scaled features, classifier parameters, and PCA...')
     print(str(type(classifiers[i])))
@@ -235,29 +246,75 @@ for i in range(len(params_list)):
     grid = GridSearchCV(pipe, 
                         param_grid = params_list[i], 
                         scoring = 'f1',
-                        cv = 5)
+                        cv = cv)
     
     try:
         grid.fit(features_train, labels_train)
     except:
         grid.fit(np.array(features_train), np.array(labels_train))
 
-    pred = grid.predict(features_test)
+    pred = grid.best_estimator_.predict(features_test)
+    
+    f1_score = metrics.f1_score(labels_test, pred)
 
+    # Evaluate the best estimator
+    evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
+    
+    # Get features used in best estimator
+    #print('The features used are = \n' + str(grid.best_estimator_.best_params['selector__k']))
+    
     # Run test_classifer
     print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
     test_classifier(grid.best_estimator_, my_dataset, features_list)
 
-    best_estimators.update({type(classifiers[i]) : grid.best_estimator_})
+    best_estimators.update({f1_score : grid.best_estimator_})
+    
+    print('\nBest estimator = \n' + str(grid.best_estimator_))
 
 # Example starting point. Try investigating other evaluation techniques!
 from sklearn.cross_validation import train_test_split
 features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
-
+'''
 # Final classifer to be used
-clf = best_estimators[type(GaussianNB())]
+svc_params = dict(clf__C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
+                      clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
+                      clf__kernel= ['rbf'], 
+                      clf__class_weight = ['balanced', None],
+                      clf__random_state = [42])
+svc_params.update(feature_params_list)
+params_list.append(svc_params)
 
+print('\nCalculating cross validation, scaled features, classifier parameters, and PCA...')
+    
+# Create pipeline and apply GridSearchCV
+print('Calculating estimators...')
+estimators = [('scalar', preprocessing.MinMaxScaler()),
+              ('selector', SelectKBest()),
+              ('reduce_dim', PCA()), 
+              ('clf', SVC())]
+
+print('Creating pipeline...')
+pipe = Pipeline(estimators) 
+print('Calculating grid search...')
+grid = GridSearchCV(pipe, 
+                    param_grid = params_list[0], 
+                    scoring = 'f1',
+                    cv = cv)
+
+try:
+    grid.fit(features_train, labels_train)
+except:
+    grid.fit(np.array(features_train), np.array(labels_train))
+
+pred = grid.best_estimator_.predict(features_test)
+evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
+
+clf = grid.best_estimator_
+
+print('Calculations finished.')
+#clf = best_estimators[best_f1]
+'''
 '''
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
