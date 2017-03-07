@@ -48,7 +48,7 @@ with open("final_project_dataset.pkl", "r") as data_file:
 '''
 
 # Print and remove 'TOTAL' from dataset
-print('Removing "TOTAL"...' + str(data_dict['TOTAL']))
+print('Removing "TOTAL"...\n' + str(data_dict['TOTAL']))
 data_dict.pop('TOTAL', 0)
 
 '''
@@ -79,9 +79,8 @@ for person in mutated_data_dict:
             ratio_poi_to_total_emails = total_poi_emails / total_emails
     
     person_count += 1
-    person_features['poi email ratio'] = round(ratio_poi_to_total_emails, 5)
+    person_features['poi_email_ratio'] = round(ratio_poi_to_total_emails, 5)
 
-print('person count = ' + str(person_count))
 my_dataset = data_dict
 
 ### Extract features and labels from dataset for local testing
@@ -339,7 +338,7 @@ features_selected_list = [x for x, y in zip(features_list[1:], features_selected
 features_scores = ['%.2f' % elem for elem in grid.best_estimator_.named_steps['selector'].scores_]
 features_selected_scores = [x for x, y in zip(features_scores, features_selected_bool) if y]
 
-print('The features used are: \n')
+print('\nThe features used are:')
 
 for i in range(len(features_selected_list)):
     print(str(features_selected_list[i]) + ' ' + str(features_selected_scores[i]))
@@ -347,7 +346,7 @@ for i in range(len(features_selected_list)):
 # Set clf, pipeline object passed into tester.py for evaluation by grader
 clf = grid.best_estimator_
 
-print('Calculations finished.')
+print('\nCalculations finished.')
 # END OF FINAL TUNED CLASSIFIER
 
 '''
