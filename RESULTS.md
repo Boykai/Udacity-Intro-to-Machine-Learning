@@ -82,3 +82,15 @@ Once you’ve submitted your responses, your coach will take a look and may ask 
  * The accuracy for this classifier was, 0.864. Which means that the classifier that was trained on a subset of the dataset, the training set, was able to correctly classify a person in the testing subset as a Person of Interest 86.4% of the time. 
 
  * The ROC Curve AUC for this classifier was, 0.662. Which means that the classifier was slightly better than random guessing (0.5). The ROC Curve AUC metric showed that out of the people in the testing subset, out of all the people classified as People of Interest, only 66.2% were classified correctly as People of Interest.
+
+ * Final Metrics Given by tester.py:
+ *  Accuracy: 0.83960       
+ * Precision: 0.37682      
+ * Recall: 0.31050 
+ * F1: 0.34046     
+ * F2: 0.32183
+ * Total predictions: 15000        
+ * True positives:  621    
+ * False positives: 1027   
+ * False negatives: 1379   
+ * True negatives: 11973
