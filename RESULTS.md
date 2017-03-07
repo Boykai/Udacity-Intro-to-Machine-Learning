@@ -72,3 +72,13 @@ Once you’ve submitted your responses, your coach will take a look and may ask 
  * A validation, or cross validation, is the process of randomly splitting the given training dataset so that each fit of the machine learning classifier can be validated against a test subset of the dataset.
 
 6. Give at least 2 evaluation metrics and your average performance for each of them.  Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance. [relevant rubric item: “usage of evaluation metrics”]
+ * The evaluation metrics found for the final classifier used within the pipeline on the Enron dataset on the local Enron dataset testing subset was:
+ * Accuracy = 0.863636363636
+ * Percision = 0.4
+ * Recall = 0.4
+ * F1 Score = 0.4
+ * ROC Curve AUC = 0.661538461538
+
+ * The accuracy for this classifier was, 0.864. Which means that the classifier that was trained on a subset of the dataset, the training set, was able to correctly classify a person in the testing subset as a Person of Interest 86.4% of the time. 
+
+ * The ROC Curve AUC for this classifier was, 0.662. Which means that the classifier was slightly better than random guessing (0.5). The ROC Curve AUC metric showed that out of the people in the testing subset, out of all the people classified as People of Interest, only 66.2% were classified correctly as People of Interest.
