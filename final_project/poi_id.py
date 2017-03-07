@@ -196,7 +196,7 @@ svc_params = dict(clf__C = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
                       clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
                       clf__kernel= ['rbf'], 
                       clf__class_weight = ['balanced', None],
-                      clf__random_state = 42)
+                      clf__random_state = [42])
 svc_params.update(feature_params_list)
 params_list.append(svc_params)
 
@@ -240,6 +240,7 @@ for i in range(len(params_list)):
     
     # Create pipeline and apply GridSearchCV
     estimators = [('scalar', preprocessing.MinMaxScaler()),
+                  ('selector', SelectKBest()),
                   ('reduce_dim', PCA()), 
                   ('clf', classifiers[i])]
     pipe = Pipeline(estimators) 
@@ -261,7 +262,7 @@ for i in range(len(params_list)):
     evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
     
     # Get features used in best estimator
-    #print('The features used are = \n' + str(grid.best_estimator_.best_params['selector__k']))
+    #print('The features used are: \n' + str(grid.best_estimator_.best_params['selector__k']))
     
     # Run test_classifer
     print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
