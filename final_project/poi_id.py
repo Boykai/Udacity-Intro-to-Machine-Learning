@@ -176,7 +176,8 @@ for model in classifiers:
 params_list = []
 feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
                            reduce_dim__whiten = [True, False],
-                           reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'])
+                           reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'],
+                           selector__k = [5, 10, 15, 'all'])
 
 # Create cross validation metric
 print('Calculating cross valadation...')
@@ -262,7 +263,7 @@ for i in range(len(params_list)):
     evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
     
     # Get features used in best estimator
-    #print('The features used are: \n' + str(grid.best_estimator_.best_params['selector__k']))
+    print('The features used are: \n' + str(grid.best_estimator_.best_params['selector__k']))
     
     # Run test_classifer
     print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
