@@ -338,8 +338,11 @@ features_selected_bool = grid.best_estimator_.named_steps['selector'].get_suppor
 features_selected_list = [x for x, y in zip(features_list[1:], features_selected_bool) if y]
 features_scores = ['%.2f' % elem for elem in grid.best_estimator_.named_steps['selector'].scores_]
 features_selected_scores = [x for x, y in zip(features_scores, features_selected_bool) if y]
-print('The features used are: \n' + str(features_selected_list))
-print(features_selected_scores)
+
+print('The features used are: \n')
+
+for i in range(len(features_selected_list)):
+    print(str(features_selected_list[i]) + ' ' + str(features_selected_scores[i]))
 
 # Set clf, pipeline object passed into tester.py for evaluation by grader
 clf = grid.best_estimator_
