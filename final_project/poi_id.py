@@ -215,7 +215,7 @@ random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
                              clf__max_features = ['sqrt', 'log2', None],
                              clf__class_weight = ['balanced', None],
                              clf__random_state = [42])
-random_forest_params.update(feature_params_list)
+#random_forest_params.update(feature_params_list)
 params_list.append(random_forest_params)
 
 # Adaboost parameters for GridSearchCV
