@@ -26,6 +26,7 @@ from sklearn.cross_validation import StratifiedShuffleSplit
 def getFeatureList():
     '''
     Creates list of labels for features of Enron dataset
+    
     @return: features_list (a list of strings)
     '''
     # Create feature list to include needed features for classifer
@@ -40,9 +41,19 @@ def getFeatureList():
                      'long_term_incentive', 'from_poi_to_this_person']
     return features_list
 
-### Load the dictionary containing the dataset
-with open("final_project_dataset.pkl", "r") as data_file:
-    data_dict = pickle.load(data_file)
+def getDataDict():
+    '''
+    Get the dictonary containing the dataset from pickle file.
+    
+    data_dict contains keys of people in Eron, with values of dictonaries
+    with each feature being a key
+    with each feature value being a value
+    
+    @return: data_dict (a dictonary of lists)
+    '''    
+    ### Load the dictionary containing the dataset
+    with open("final_project_dataset.pkl", "r") as data_file:
+        data_dict = pickle.load(data_file)
 
 ''' 
 ### Task 2: Remove outliers
