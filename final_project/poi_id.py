@@ -229,36 +229,73 @@ def getParameters(classifiers, features_list):
     feature_params_list = getPCAKBestParameters(features_list)   
     
     # KNeighbors parameters for GridSearchCV
-    kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'], 
-                             clf__weights = ['uniform', 'distance'],
+    kneighbors_params = dict(clf__metric = ['minkowski',
+                                            'euclidean',
+                                            'manhattan'], 
+                             clf__weights = ['uniform', 
+                                             'distance'],
                              clf__n_neighbors = np.arange(2, 10),
-                             clf__algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
+                             clf__algorithm = ['auto', 
+                                               'ball_tree', 
+                                               'kd_tree',
+                                               'brute'])
     kneighbors_params.update(feature_params_list)
     params_list.append(kneighbors_params)
     
     # SVM parameters for GridSearchCV
-    svc_params = dict(clf__C = [0.00001, 0.0001, 0.001, 0.01, 0.1, 10, 100, 1000, 10000],
-                          clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
+    svc_params = dict(clf__C = [0.00001, 
+                                0.0001, 
+                                0.001, 
+                                0.01, 
+                                0.1, 
+                                10, 
+                                100, 
+                                1000, 
+                                10000],
+                          clf__gamma = [0.0001, 
+                                        0.0005, 
+                                        0.001, 
+                                        0.005, 
+                                        0.01, 
+                                        0.1],
                           clf__kernel= ['rbf'], 
-                          clf__class_weight = ['balanced', None],
-                          clf__random_state = [0, 1, 10, 42])
+                          clf__class_weight = ['balanced', 
+                                               None],
+                          clf__random_state = [0, 
+                                               1, 
+                                               10, 
+                                               42])
     svc_params.update(feature_params_list)
     params_list.append(svc_params)
     
     # Decision Tree parameters for GridSearchCV
-    decision_tree_params = dict(clf__criterion = ['gini', 'entropy'],
-                                clf__max_features = ['sqrt', 'log2', None],
-                                clf__class_weight = ['balanced', None],
-                                clf__random_state = [0, 1, 10, 42])
+    decision_tree_params = dict(clf__criterion = ['gini', 
+                                                  'entropy'],
+                                clf__max_features = ['sqrt', 
+                                                     'log2', 
+                                                     None],
+                                clf__class_weight = ['balanced', 
+                                                     None],
+                                clf__random_state = [0, 
+                                                     1, 
+                                                     10, 
+                                                     42])
     decision_tree_params.update(feature_params_list)
     params_list.append(decision_tree_params)
     
     # Random Forest parameters for GridSearchCV
     random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
-                                 clf__criterion = ['gini', 'entropy'],
-                                 clf__max_features = ['sqrt', 'log2', None],
-                                 clf__class_weight = ['balanced', None],
-                                 clf__random_state = [0, 1, 10, 42])
+                                 clf__criterion = ['gini', 
+                                                   'entropy'],
+                                 clf__max_features = ['sqrt', 
+                                                      'log2', 
+                                                      None],
+                                 clf__class_weight = ['balanced', 
+                                                      None],
+                                 clf__random_state = [0, 
+                                                      1, 
+                                                      10, 
+                                                      42])
     random_forest_params.update(feature_params_list)
     params_list.append(random_forest_params)
     
@@ -266,8 +303,12 @@ def getParameters(classifiers, features_list):
     adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
                                                   GaussianNB()],
                            clf__n_estimators = np.arange(10, 150, 10),
-                           clf__algorithm = ['SAMME', 'SAMME.R'],
-                           clf__random_state = [0, 1, 10, 42])
+                           clf__algorithm = ['SAMME', 
+                                             'SAMME.R'],
+                           clf__random_state = [0, 
+                                                1, 
+                                                10, 
+                                                42])
     adaboost_params.update(feature_params_list)
     params_list.append(adaboost_params)
     
