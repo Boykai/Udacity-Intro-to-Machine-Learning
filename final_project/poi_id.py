@@ -64,6 +64,8 @@ def removeOutliers(data_dict):
     Removes 'TOTAL' outlier entry from data_dict
     Returns clean dataset with outliers are removed
     
+    data_dict: Dictonary of Enron dataset (a dictonary)
+    
     @return: data_dict (a dictonary)
     '''
     ### Task 2: Remove outliers
@@ -114,18 +116,6 @@ def createFeatures(data_dict):
     my_dataset = mutated_data_dict
     
     return my_dataset
-    
-
-'''
-### Task 4: Try a varity of classifiers
-### Please name your classifier clf for easy export below.
-### Note that if you want to do PCA or other multi-stage operations,
-### you'll need to use Pipelines. For more info:
-### http://scikit-learn.org/stable/modules/pipeline.html
-
-1. Created evaluateClf method in order to print out evaluation metrics
-   for different ML classifers while keeping the code DRY
-'''
 
 # Method to print classifer elvaluation metrics
 def evaluateClf(classifer, feats_test, labs_test, predictions):
@@ -159,6 +149,17 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
     print('F1 Score = ' + str(f1_score))
     print('ROC Curve AUC = ' + str(roc_auc))
 
+    
+'''
+### Task 4: Try a varity of classifiers
+### Please name your classifier clf for easy export below.
+### Note that if you want to do PCA or other multi-stage operations,
+### you'll need to use Pipelines. For more info:
+### http://scikit-learn.org/stable/modules/pipeline.html
+
+1. Created evaluateClf method in order to print out evaluation metrics
+   for different ML classifers while keeping the code DRY
+'''
 # Provided to give you a starting point. Try a variety of classifiers.
 '''
 1. Created an basic instance of some classifer models
