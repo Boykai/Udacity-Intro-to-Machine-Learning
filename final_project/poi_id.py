@@ -356,3 +356,10 @@ print('\nCalculations finished.')
 ### generates the necessary .pkl files for validating your results.
 '''
 dump_classifier_and_data(clf, my_dataset, features_list)
+
+
+def main():
+
+
+if __name__ == '__main__':
+    main()
