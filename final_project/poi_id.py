@@ -205,7 +205,7 @@ def getPCAKBestParameters(features):
                                                          'full', 
                                                          'arpack', 
                                                          'randomized'],
-                               selector__k = np.arange([5, 10, 15, 'all']))  
+                               selector__k = [5, 10, 15, 'all'])  
     
     return feature_params_list
     
