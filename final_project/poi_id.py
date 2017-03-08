@@ -5,6 +5,7 @@ import pickle
 from sklearn import metrics
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
+from sklearn.cross_validation import train_test_split
 from tester import dump_classifier_and_data
 from tester import test_classifier
 import numpy as np
@@ -113,10 +114,7 @@ def createFeatures(data_dict):
     my_dataset = mutated_data_dict
     
     return my_dataset
-
-### Extract features and labels from dataset for local testing
-data = featureFormat(my_dataset, features_list, sort_keys = True)
-labels, features = targetFeatureSplit(data)
+    
 
 '''
 ### Task 4: Try a varity of classifiers
@@ -165,10 +163,7 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
 '''
 1. Created an basic instance of some classifer models
 '''
-# Split data into training and testing sets
-from sklearn.cross_validation import train_test_split
-features_train, features_test, labels_train, labels_test = \
-    train_test_split(features, labels, test_size=0.3, random_state=42)
+
 
 # Import classifer model libraries
 from sklearn.neighbors import KNeighborsClassifier
@@ -391,9 +386,19 @@ dump_classifier_and_data(clf, my_dataset, features_list)
 
 
 def main():
+    # Get, create, and store Enron dataset
     feature_names = getFeatureList()
     dataset = getDataDict() 
     dataset = removeOutliers(dataset)
+    #dataset = createFeatures(dataset) # Uncomment to add new features
+    
+    # Extract features and labels from dataset for local testing
+    data = featureFormat(dataset, feature_names, sort_keys = True)
+    labels, features = targetFeatureSplit(data)
+    
+    # Split data into training and testing sets
+    features_train, features_test, labels_train, labels_test = \
+    train_test_split(features, labels, test_size=0.3, random_state=42)
 
 if __name__ == '__main__':
     main()
