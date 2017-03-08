@@ -325,60 +325,96 @@ def getParameters(classifiers, features_list):
     return classifiers_params_dict
         
 
+def tuneClassifier(classifiers_params, cross_val, my_dataset, features_list,
+                   features_train, labels_train, features_test, labels_test):
+    '''
+    Tune given classifiers with given matching params, then return the best 
+    estimator given the classifiers input
     
-### Task 5: Tune your classifier to achieve better than .3 precision and recall 
-### using our testing script. Check the tester.py script in the final project
-### folder for details on the evaluation method, especially the test_classifier
-### function. Because of the small size of the dataset, the script uses
-### stratified shuffle split cross validation. For more info: 
-### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
-
-# Iterate over each classifier and their parameters, apply PCA and GridsearchCV
-best_estimators = {}
-
-for i in range(len(params_list)):
-    print('\nCalculating scaled features, classifier parameters, and PCA...')
-    print(str(type(classifiers[i])))
+    classifiers: List of classifier objects to fit, predict, and evaluate on
+                 the Enron dataset (a list)
     
-    # Create pipeline and apply GridSearchCV
-    estimators = [('scalar', preprocessing.MinMaxScaler()),
-                  ('selector', SelectKBest()),
-                  ('reduce_dim', PCA()), 
-                  ('clf', classifiers[i])]
-    pipe = Pipeline(estimators) 
-    grid = GridSearchCV(pipe, 
-                        param_grid = params_list[i], 
-                        scoring = 'f1',
-                        cv = cv)
+    my_dataset: Dict of people in Eron, with values of dictonaries (a dict)
     
-    try:
-        grid.fit(features_train, labels_train)
-    except:
-        grid.fit(np.array(features_train), np.array(labels_train))
-
-    pred = grid.best_estimator_.predict(features_test)
+    cross_val: Cross validation method object (a method object)
     
-    f1_score = metrics.f1_score(labels_test, pred)
-
-    # Evaluate the best estimator
-    evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
+    features_list: list of labels for features of Enron dataset (a list)             
+                 
+    features_train: List of features to train the classifier (a list)
     
-    # Get features used in best estimator
-    # https://discussions.udacity.com/t/how-to-find-out-the-features-selected-by-selectkbest/45118/4
-    features_selected_bool = grid.best_estimator_.named_steps['selector'].get_support()
-    features_selected_list = [x for x, y in zip(features_list[1:], features_selected_bool) if y]
-    print('The features used are: \n' + str(features_selected_list))
+    labels_train: List of labels to train the classifier (a list)
     
-    # Run test_classifer
-    print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
-    test_classifier(grid.best_estimator_, my_dataset, features_list)
-
-    best_estimators.update({f1_score : grid.best_estimator_})
+    features_test: List of features to test the classifier (a list)
     
-    print('\nBest estimator = \n' + str(grid.best_estimator_))
-# END OF TUNING MULTIPLE CLASSIFIER PIPELINE TYPES
+    labels_test: List of labels to test the classifier (a list)
+    
+    @return: Best classifier given the scoring metric (a pipeline object)
+    '''    
+    ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
+    ### using our testing script. Check the tester.py script in the final project
+    ### folder for details on the evaluation method, especially the test_classifier
+    ### function. Because of the small size of the dataset, the script uses
+    ### stratified shuffle split cross validation. For more info: 
+    ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+    
+    # Iterate over each classifier and their parameters, apply PCA and GridsearchCV
+    best_estimators = {}
+    
+    # Split and set classifiers and parameter lists
+    classifiers = list(classifiers_params.keys())
+    params_list = list(classifiers_params.values())
+    
+    # Iterate over each classifier and run GridSearchCV using the given params
+    for i in range(len(classifiers)):
+        print('\nTuning classifier...')
+        print(str(type(classifiers[i])))
+        
+        # Create pipeline and apply GridSearchCV
+        estimators = [('scalar', preprocessing.MinMaxScaler()),
+                      ('selector', SelectKBest()),
+                      ('reduce_dim', PCA()), 
+                      ('clf', classifiers[i])]
+        pipe = Pipeline(estimators) 
+        grid = GridSearchCV(pipe, 
+                            param_grid = params_list[i], 
+                            scoring = 'f1',
+                            cv = cross_val)
+        
+        # Check and resize data shape, then fit on grid
+        try:
+            grid.fit(features_train, labels_train)
+        except:
+            grid.fit(np.array(features_train), np.array(labels_train))
+    
+        pred = grid.best_estimator_.predict(features_test)
+        f1_score = metrics.f1_score(labels_test, pred)
+        
+        # Evaluate the best estimator
+        evaluateClf(grid.best_estimator_, features_test, labels_test, pred)
+        
+        # Get features used in best estimator
+        # https://discussions.udacity.com/t/how-to-find-out-the-features-selected-by-selectkbest/45118/4
+        features_selected_bool = grid.best_estimator_.named_steps['selector'].get_support()
+        features_selected_list = [x for x, y in zip(features_list[1:], features_selected_bool) if y]
+        features_scores = ['%.2f' % elem for elem in grid.best_estimator_.named_steps['selector'].scores_]
+        features_selected_scores = [x for x, y in zip(features_scores, features_selected_bool) if y]
 
-
+        print('\nThe features used are:')
+        for i in range(len(features_selected_list)):
+            print(str(features_selected_list[i]) + ' ' + str(features_selected_scores[i]))
+        
+        # Run test_classifer
+        print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
+        test_classifier(grid.best_estimator_, my_dataset, features_list)
+        
+        print('\nBest estimator = \n' + str(grid.best_estimator_))
+        best_estimators.update({f1_score : grid.best_estimator_})
+    
+    best_score = max(list(best_estimators.keys()))
+    
+    return best_estimators[best_score]
+        
+'''
 # START OF FINAL TUNED CLASSIFIER
 # Example starting point. Try investigating other evaluation techniques!
 from sklearn.cross_validation import train_test_split
@@ -446,7 +482,7 @@ clf = grid.best_estimator_
 
 print('\nCalculations finished.')
 # END OF FINAL TUNED CLASSIFIER
-
+'''
 '''
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
@@ -486,10 +522,12 @@ def main():
     # Get dictonary of classifier, parameter, pairs
     classifiers_params_list = getParameters(classifiers, feature_names)
     
-    
     # Create cross validation metric
     print('Calculating cross valadation...')
     cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
     
+    # Tune given Classifiers
+    tuneClassifier(classifiers_params_list, cv, dataset, feature_names,
+                   features_train, labels_train, features_test, labels_test)
 if __name__ == '__main__':
     main()
