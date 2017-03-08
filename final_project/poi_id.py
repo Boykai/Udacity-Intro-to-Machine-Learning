@@ -54,6 +54,8 @@ def getDataDict():
     ### Load the dictionary containing the dataset
     with open("final_project_dataset.pkl", "r") as data_file:
         data_dict = pickle.load(data_file)
+    
+    return data_dict
 
 def removeOutliers(data_dict):
     ''' 
@@ -74,37 +76,43 @@ def removeOutliers(data_dict):
     
     return data_dict
 
-'''
-### Task 3: Create new feature(s)
-### Store to my_dataset for easy export below.
-
-1. Not adding ANY new features for first iteration
-2. Create new feature, ratio of poi emails to total emails
-'''
-
-# Find ratio of poi emails to total emails
-person_count = 0
-mutated_data_dict = data_dict.copy()
-
-for person in mutated_data_dict:
-    ratio_poi_to_total_emails = 0.0
-    person_features = mutated_data_dict[person]
+def createFeatures(data_dict):
+    '''
+    Creates new feature and updates dataset dict (data_dict)
+    Returns updated dataset dict with new feature added
     
-    # Check value is int for email count features
-    if isinstance(person_features['from_this_person_to_poi'], (int, long)) and \
-       isinstance(person_features['from_poi_to_this_person'], (int, long)):
-        total_poi_emails = float(person_features['from_this_person_to_poi']) \
-                           + float(person_features['from_poi_to_this_person'])
-
-        if total_poi_emails:
-            total_emails = float(person_features['to_messages']) \
-                           + float(person_features['from_messages'])
-            ratio_poi_to_total_emails = total_poi_emails / total_emails
+    @return: data_dict (a dictonary)
+    '''
+    ### Task 3: Create new feature(s)
+    ### Store to my_dataset for easy export below.
+    # 1. Not adding ANY new features for first iteration
+    # 2. Create new feature, ratio of poi emails to total emails
     
-    person_count += 1
-    person_features['poi_email_ratio'] = round(ratio_poi_to_total_emails, 5)
-
-my_dataset = data_dict
+    # Find ratio of poi emails to total emails
+    mutated_data_dict = data_dict.copy()
+    
+    # Iterate over each person in dataset, get required feature values
+    for person in mutated_data_dict:
+        ratio_poi_to_total_emails = 0.0
+        person_features = mutated_data_dict[person]
+        
+        # Check value is int for email count features
+        if isinstance(person_features['from_this_person_to_poi'], (int, long)) and \
+           isinstance(person_features['from_poi_to_this_person'], (int, long)):
+            total_poi_emails = float(person_features['from_this_person_to_poi']) \
+                             + float(person_features['from_poi_to_this_person'])
+            # Check total_poi_emails is not NULL
+            if total_poi_emails:
+                total_emails = float(person_features['to_messages']) \
+                             + float(person_features['from_messages'])
+                # Calculate total poi emails to total emails
+                ratio_poi_to_total_emails = total_poi_emails / total_emails
+        # Create, store, and update new feature 'poi_emails_ratio'
+        person_features['poi_email_ratio'] = round(ratio_poi_to_total_emails, 5)
+    
+    my_dataset = mutated_data_dict
+    
+    return my_dataset
 
 ### Extract features and labels from dataset for local testing
 data = featureFormat(my_dataset, features_list, sort_keys = True)
@@ -383,7 +391,9 @@ dump_classifier_and_data(clf, my_dataset, features_list)
 
 
 def main():
-
+    feature_names = getFeatureList()
+    dataset = getDataDict() 
+    dataset = removeOutliers(dataset)
 
 if __name__ == '__main__':
     main()
