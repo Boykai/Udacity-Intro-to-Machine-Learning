@@ -185,6 +185,30 @@ def simpleClassifiers(classifiers, features_train, labels_train,
         pred = clf.predict(features_test)
         evaluateClf(clf, features_test, labels_test, pred)
 
+        
+def getPCAKBestParameters(features):
+    '''
+    Creates parameter dict for PCA and SelectKBest for later use in parameter
+    tuning in GridSearchCV
+    
+    reduce_dim__n_components must be strickly less than min(selector__k)
+    
+    selector__k must be strickly greater than max(reduce_dim__n_components)
+    
+    @return: PCA and KBest parameter list (a dict)
+    '''
+    
+    feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
+                               reduce_dim__whiten = [True, 
+                                                     False],
+                               reduce_dim__svd_solver = ['auto', 
+                                                         'full', 
+                                                         'arpack', 
+                                                         'randomized'],
+                               selector__k = np.arange(5, len(features) - 1))  
+    
+    return feature_params_list
+    
 def getParameters(classifiers, features_list):
     '''
     Creates parameter list for each classifier for later use in parameter
@@ -197,21 +221,12 @@ def getParameters(classifiers, features_list):
     
     @return: Classifier key, parameter list, pairs for GridSearchCV use (a dict)
     '''
-    ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
-    ### using our testing script. Check the tester.py script in the final project
-    ### folder for details on the evaluation method, especially the test_classifier
-    ### function. Because of the small size of the dataset, the script uses
-    ### stratified shuffle split cross validation. For more info: 
-    ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
     
     # Create parameter grid options for each classifer, store in params_list
     params_list = []
     
-    # Create PCA and SelectKBest parameter list for GridSearchCV
-    feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
-                               reduce_dim__whiten = [True, False],
-                               reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'],
-                               selector__k = np.arange(5, len(features_list) - 1))    
+    # Get PCA and SelectKBest parameter list for GridSearchCV
+    feature_params_list = getPCAKBestParameters(features_list)   
     
     # KNeighbors parameters for GridSearchCV
     kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'], 
@@ -268,6 +283,14 @@ def getParameters(classifiers, features_list):
         
     return classifiers_params_dict
         
+
+    
+### Task 5: Tune your classifier to achieve better than .3 precision and recall 
+### using our testing script. Check the tester.py script in the final project
+### folder for details on the evaluation method, especially the test_classifier
+### function. Because of the small size of the dataset, the script uses
+### stratified shuffle split cross validation. For more info: 
+### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 
 # Iterate over each classifier and their parameters, apply PCA and GridsearchCV
 best_estimators = {}
