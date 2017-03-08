@@ -56,7 +56,7 @@ def getDataDict():
     with each feature being a key
     with each feature value being a value
     
-    @return: data_dict (a dictonary)
+    @return: data_dict (a dict)
     '''    
     ### Load the dictionary containing the dataset
     with open("final_project_dataset.pkl", "r") as data_file:
@@ -70,9 +70,9 @@ def removeOutliers(data_dict):
     Removes 'TOTAL' outlier entry from data_dict
     Returns clean dataset with outliers are removed
     
-    data_dict: Dictonary of Enron dataset (a dictonary)
+    data_dict: Dictonary of Enron dataset (a dict)
     
-    @return: data_dict (a dictonary)
+    @return: data_dict (a dict)
     '''
     ### Task 2: Remove outliers
     # 1. Not removing ANY outliers for first iteration 
@@ -90,7 +90,7 @@ def createFeatures(data_dict):
     Creates new feature and updates dataset dict (data_dict)
     Returns updated dataset dict with new feature added
     
-    @return: data_dict (a dictonary)
+    @return: data_dict (a dict)
     '''
     ### Task 3: Create new feature(s)
     ### Store to my_dataset for easy export below.
@@ -133,14 +133,14 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
         F1 Score
         ROC Curve AUC
         
-        classifer: ML classifer model object (an object)
+    classifer: ML classifer model object (an object)
         
-        feats_test: List of feature values within the test subset (a list)
+    feats_test: List of feature values within the test subset (a list)
 
-        labs_test: List of label values within the test subset (a list)
+    labs_test: List of label values within the test subset (a list)
         
-        prediction: List of prediction label values based on the test subset
-                    (a list)
+    prediction: List of prediction label values based on the test subset
+                (a list)
     '''
     # 1. Created evaluateClf method in order to print out evaluation metrics
     
@@ -185,79 +185,89 @@ def simpleClassifiers(classifiers, features_train, labels_train,
         pred = clf.predict(features_test)
         evaluateClf(clf, features_test, labels_test, pred)
 
-
-'''
-### Task 5: Tune your classifier to achieve better than .3 precision and recall 
-### using our testing script. Check the tester.py script in the final project
-### folder for details on the evaluation method, especially the test_classifier
-### function. Because of the small size of the dataset, the script uses
-### stratified shuffle split cross validation. For more info: 
-### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
-'''
-
-# START OF TUNING MULTIPLE CLASSIFIER PIPELINE TYPES
-# UNCOMMENT THIS SECTION TO TUNE MULTIPLE CLASSIFIER PIPELINES
-### WARNING: RUNTIME MAY BE EXTREMELY LONG ###
-# Create parameter grid options for each classifer, store in params_list
-params_list = []
-
-feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
-                           reduce_dim__whiten = [True, False],
-                           reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'],
-                           selector__k = np.arange(5, len(features_list) - 1))
-
-# Create cross validation metric
-print('Calculating cross valadation...')
-cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
-
-
-# KNeighbors parameters for GridSearchCV
-kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'], 
-                         clf__weights = ['uniform', 'distance'],
-                         clf__n_neighbors = np.arange(2, 10),
-                         clf__algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
-kneighbors_params.update(feature_params_list)
-params_list.append(kneighbors_params)
-
-# SVM parameters for GridSearchCV
-svc_params = dict(clf__C = [0.00001, 0.0001, 0.001, 0.01, 0.1, 10, 100, 1000, 10000],
-                      clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
-                      clf__kernel= ['rbf'], 
-                      clf__class_weight = ['balanced', None],
-                      clf__random_state = [0, 1, 10, 42])
-svc_params.update(feature_params_list)
-params_list.append(svc_params)
-
-# Decision Tree parameters for GridSearchCV
-decision_tree_params = dict(clf__criterion = ['gini', 'entropy'],
-                            clf__max_features = ['sqrt', 'log2', None],
-                            clf__class_weight = ['balanced', None],
-                            clf__random_state = [0, 1, 10, 42])
-decision_tree_params.update(feature_params_list)
-params_list.append(decision_tree_params)
-
-# Random Forest parameters for GridSearchCV
-random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
-                             clf__criterion = ['gini', 'entropy'],
-                             clf__max_features = ['sqrt', 'log2', None],
-                             clf__class_weight = ['balanced', None],
-                             clf__random_state = [0, 1, 10, 42])
-random_forest_params.update(feature_params_list)
-params_list.append(random_forest_params)
-
-# Adaboost parameters for GridSearchCV
-adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
-                                              GaussianNB()],
-                       clf__n_estimators = np.arange(10, 150, 10),
-                       clf__algorithm = ['SAMME', 'SAMME.R'],
-                       clf__random_state = [0, 1, 10, 42])
-adaboost_params.update(feature_params_list)
-params_list.append(adaboost_params)
-
-# Naive Bayes parameters for GridSearchCV
-naive_bayes_params = dict()
-naive_bayes_params.update(feature_params_list)
-params_list.append(naive_bayes_params)
+def getParameters(classifiers, features_list):
+    '''
+    Creates parameter list for each classifier for later use in parameter
+    tuning in GridSearchCV
+    
+    classifiers: List of classifier objects to fit, predict, and evaluate on
+                 the Enron dataset (a list)
+                 
+    features_list: List of labels for features of Enron dataset (a list)
+    
+    @return: Classifier key, parameter list, pairs for GridSearchCV use (a dict)
+    '''
+    ### Task 5: Tune your classifier to achieve better than .3 precision and recall 
+    ### using our testing script. Check the tester.py script in the final project
+    ### folder for details on the evaluation method, especially the test_classifier
+    ### function. Because of the small size of the dataset, the script uses
+    ### stratified shuffle split cross validation. For more info: 
+    ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+    
+    # Create parameter grid options for each classifer, store in params_list
+    params_list = []
+    
+    # Create PCA and SelectKBest parameter list for GridSearchCV
+    feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
+                               reduce_dim__whiten = [True, False],
+                               reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'],
+                               selector__k = np.arange(5, len(features_list) - 1))    
+    
+    # KNeighbors parameters for GridSearchCV
+    kneighbors_params = dict(clf__metric = ['minkowski','euclidean','manhattan'], 
+                             clf__weights = ['uniform', 'distance'],
+                             clf__n_neighbors = np.arange(2, 10),
+                             clf__algorithm = ['auto', 'ball_tree', 'kd_tree','brute'])
+    kneighbors_params.update(feature_params_list)
+    params_list.append(kneighbors_params)
+    
+    # SVM parameters for GridSearchCV
+    svc_params = dict(clf__C = [0.00001, 0.0001, 0.001, 0.01, 0.1, 10, 100, 1000, 10000],
+                          clf__gamma = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1],
+                          clf__kernel= ['rbf'], 
+                          clf__class_weight = ['balanced', None],
+                          clf__random_state = [0, 1, 10, 42])
+    svc_params.update(feature_params_list)
+    params_list.append(svc_params)
+    
+    # Decision Tree parameters for GridSearchCV
+    decision_tree_params = dict(clf__criterion = ['gini', 'entropy'],
+                                clf__max_features = ['sqrt', 'log2', None],
+                                clf__class_weight = ['balanced', None],
+                                clf__random_state = [0, 1, 10, 42])
+    decision_tree_params.update(feature_params_list)
+    params_list.append(decision_tree_params)
+    
+    # Random Forest parameters for GridSearchCV
+    random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
+                                 clf__criterion = ['gini', 'entropy'],
+                                 clf__max_features = ['sqrt', 'log2', None],
+                                 clf__class_weight = ['balanced', None],
+                                 clf__random_state = [0, 1, 10, 42])
+    random_forest_params.update(feature_params_list)
+    params_list.append(random_forest_params)
+    
+    # Adaboost parameters for GridSearchCV
+    adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
+                                                  GaussianNB()],
+                           clf__n_estimators = np.arange(10, 150, 10),
+                           clf__algorithm = ['SAMME', 'SAMME.R'],
+                           clf__random_state = [0, 1, 10, 42])
+    adaboost_params.update(feature_params_list)
+    params_list.append(adaboost_params)
+    
+    # Naive Bayes parameters for GridSearchCV
+    naive_bayes_params = dict()
+    naive_bayes_params.update(feature_params_list)
+    params_list.append(naive_bayes_params)
+    
+    classifiers_params_dict = {}
+    
+    for i in classifiers:
+        classifiers_params_dict.update({classifiers[i] : params_list[i]})
+        
+    return classifiers_params_dict
+        
 
 # Iterate over each classifier and their parameters, apply PCA and GridsearchCV
 best_estimators = {}
@@ -408,5 +418,14 @@ def main():
     # Evaluate basic classifiers with no parameters on Enron dataset
     simpleClassifiers(classifiers, features_train, labels_train,
                       features_test, labels_test)
+    
+    # Get dictonary of classifier, parameter, pairs
+    classifiers_params_list = getParameters(classifiers, feature_names)
+    
+    
+    # Create cross validation metric
+    print('Calculating cross valadation...')
+    cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
+    
 if __name__ == '__main__':
     main()
