@@ -8,7 +8,6 @@ from feature_format import featureFormat, targetFeatureSplit
 from sklearn.cross_validation import train_test_split
 from tester import dump_classifier_and_data
 from tester import test_classifier
-# Import classifer model libraries
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
@@ -21,21 +20,21 @@ from sklearn.decomposition import PCA
 from sklearn import preprocessing
 from sklearn.feature_selection import SelectKBest
 from sklearn.cross_validation import StratifiedShuffleSplit
-'''
-### Task 1: Select what features you'll use.
-### features_list is a list of strings, each of which is a feature name.
-### The first feature must be "poi".
 
-1. Started by using ALL the feature for first iteration
-2. After attempting to run feature_format, removed 'email_address' feature
-   due to this feature throwing an error
-'''
+
 def getFeatureList():
     '''
     Creates list of labels for features of Enron dataset
     
     @return: features_list (a list)
     '''
+    ### Task 1: Select what features you'll use.
+    ### features_list is a list of strings, each of which is a feature name.
+    ### The first feature must be "poi".
+    # 1. Started by using ALL the feature for first iteration
+    # 2. After attempting to run feature_format, removed 'email_address' feature
+    # due to this feature throwing an error
+    
     # Create feature list to include needed features for classifer
     # 'poi' must be first feature within the list
     # Features removed later in KBest and PCA pipeline
@@ -48,6 +47,7 @@ def getFeatureList():
                      'long_term_incentive', 'from_poi_to_this_person']
     return features_list
 
+    
 def getDataDict():
     '''
     Get the dictonary containing the dataset from pickle file.
@@ -64,6 +64,7 @@ def getDataDict():
     
     return data_dict
 
+    
 def removeOutliers(data_dict):
     ''' 
     Remove bad outliers from Enron dataset
@@ -85,6 +86,7 @@ def removeOutliers(data_dict):
     
     return data_dict
 
+    
 def createFeatures(data_dict):
     '''
     Creates new feature and updates dataset dict (data_dict)
@@ -123,9 +125,10 @@ def createFeatures(data_dict):
     
     return my_dataset
 
-# Method to print classifer elvaluation metrics
+    
 def evaluateClf(classifer, feats_test, labs_test, predictions):
     '''
+    Prints classifer elvaluation metrics
     Evaluates ML classifer using different metrics, such as:
         Accuracy
         Precision
@@ -157,6 +160,7 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
     print('F1 Score = ' + str(f1_score))
     print('ROC Curve AUC = ' + str(roc_auc))
 
+    
 def simpleClassifiers(classifiers, features_train, labels_train, 
                       features_test, labels_test):    
     '''
@@ -209,6 +213,7 @@ def getPCAKBestParameters(features):
     
     return feature_params_list
 
+    
 def getKNeighborsParams():
     '''
     Get list of values for each parameter for KNightbors classifier
@@ -227,6 +232,7 @@ def getKNeighborsParams():
                                                'brute'])
     
     return kneighbors_params
+    
     
 def getSVCParams():
     '''
@@ -259,6 +265,7 @@ def getSVCParams():
     
     return svc_params
     
+    
 def getDTParams():
     '''
     Get list of values for each parameter for Decision Tree classifier
@@ -279,6 +286,7 @@ def getDTParams():
     
     return decision_tree_params    
 
+    
 def getRandomForestParams():
     '''
     Get list of values for each parameter for Random Forest classifier
@@ -300,6 +308,7 @@ def getRandomForestParams():
     
     return random_forest_params
 
+    
 def getAdaParams():
     '''
     Get list of values for each parameter for Adaboost classifier
@@ -318,12 +327,13 @@ def getAdaParams():
     
     return adaboost_params
     
+    
 def getParameters(classifiers, features_list):
     '''
     Creates parameter list for each classifier for later use in parameter
     tuning in GridSearchCV
     
-    classifiers: List of classifier objects type to fit, predict, and evaluate 
+    classifiers: List of classifier objects to fit, predict, and evaluate 
                  on the Enron dataset (a list)
                  
     features_list: List of labels for features of Enron dataset (a list)
@@ -368,6 +378,26 @@ def getParameters(classifiers, features_list):
     param_dict.update({type(GaussianNB()) : naive_bayes_params})
     
     return param_dict    
+    
+    
+def getClassiferTunes(classifiers, params_list):
+    '''
+    Matches the classifier objects with the correct parameter list dictionaries
+    to later be used in GridSearchCV
+    
+    classifiers: List of classifier objects to fit, predict, and evaluate 
+                 on the Enron dataset (a list)
+        
+    params_list: Classifier type key, parameter dict, pairs for GridSearchCV use (a dict)
+    
+    @return: Dictonary classifier object and matching parameters (a dict)
+    '''
+    classifiersToTune = {}
+    for classifier in classifiers:
+        classifiersToTune.update({classifier : params_list[type(classifier)]})
+     
+    return classifiersToTune
+    
 
 def tuneClassifier(classifiers_params, cross_val, my_dataset, features_list,
                    features_train, labels_train, features_test, labels_test):
@@ -408,12 +438,9 @@ def tuneClassifier(classifiers_params, cross_val, my_dataset, features_list,
     classifiers = list(classifiers_params.keys())
     params_list = list(classifiers_params.values())
     
-    print('class' + str(classifiers))
-    print('params' + str(params_list))
-    
     # Iterate over each classifier and run GridSearchCV using the given params
     for i in range(len(classifiers)):
-        print('\nTuning classifier...')
+        print('\n\nTuning classifier...')
         print(str(type(classifiers[i])))
         
         # Create pipeline and apply GridSearchCV
@@ -450,87 +477,19 @@ def tuneClassifier(classifiers_params, cross_val, my_dataset, features_list,
         for i in range(len(features_selected_list)):
             print(str(features_selected_list[i]) + ' ' + str(features_selected_scores[i]))
         
+        # Get best estimator for classifier
+        print('\nBest estimator = \n' + str(grid.best_estimator_))
+        best_estimators.update({f1_score : grid.best_estimator_})   
+        
         # Run test_classifer
         print('\n\nRunning Tester...\n' )#+ str(type(classifiers[i])))
         test_classifier(grid.best_estimator_, my_dataset, features_list)
-        
-        print('\nBest estimator = \n' + str(grid.best_estimator_))
-        best_estimators.update({f1_score : grid.best_estimator_})
     
     best_score = max(list(best_estimators.keys()))
     
     return best_estimators[best_score]
-        
-'''
-# START OF FINAL TUNED CLASSIFIER
-# Example starting point. Try investigating other evaluation techniques!
-from sklearn.cross_validation import train_test_split
-features_train, features_test, labels_train, labels_test = \
-    train_test_split(features, labels, test_size=0.3, random_state=42)
 
-# Final classifer to be used
-# Naive Bayes parameters for GridSearchCV
-final_params_list = []
-final_feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
-                           reduce_dim__whiten = [True, False],
-                           reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'],
-                           selector__k = [5, 10, 15, 'all'])
-final_naive_bayes_params = dict()
-final_naive_bayes_params.update(final_feature_params_list)
-final_params_list.append(final_naive_bayes_params)
-
-print('\nCalculating cross validation, scaled features, classifier parameters, and PCA...')
     
-# Create pipeline and apply GridSearchCV
-print('Calculating estimators...')
-final_estimators = [('scalar', preprocessing.MinMaxScaler()),
-                    ('selector', SelectKBest()),
-                    ('reduce_dim', PCA()), 
-                    ('clf', GaussianNB())]
-
-print('Creating pipeline...')
-final_pipe = Pipeline(final_estimators) 
-
-print('Creating cross validation function...')
-final_cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
-
-print('Calculating grid search...')
-grid = GridSearchCV(final_pipe, 
-                    param_grid = final_params_list, 
-                    scoring = 'f1',
-                    cv = final_cv)
-
-print('Fitting classifier to dataset...')
-try:
-    grid.fit(features_train, labels_train)
-except:
-    grid.fit(np.array(features_train), np.array(labels_train))
-
-print('Getting predictions for classifier of dataset...')
-final_pred = grid.best_estimator_.predict(features_test)
-
-print('Printing evaluation metrics for classifier on testing subset of dataset...')
-evaluateClf(grid.best_estimator_, features_test, labels_test, final_pred)
-
-# Get features used in best estimator
-# https://discussions.udacity.com/t/how-to-find-out-the-features-selected-by-selectkbest/45118/4
-features_selected_bool = grid.best_estimator_.named_steps['selector'].get_support()
-features_selected_list = [x for x, y in zip(features_list[1:], features_selected_bool) if y]
-features_scores = ['%.2f' % elem for elem in grid.best_estimator_.named_steps['selector'].scores_]
-features_selected_scores = [x for x, y in zip(features_scores, features_selected_bool) if y]
-
-print('\nThe features used are:')
-
-for i in range(len(features_selected_list)):
-    print(str(features_selected_list[i]) + ' ' + str(features_selected_scores[i]))
-
-# Set clf, pipeline object passed into tester.py for evaluation by grader
-clf = grid.best_estimator_
-
-print('\nCalculations finished.')
-# END OF FINAL TUNED CLASSIFIER
-'''
-
 def dumpClf(clf, my_dataset, features_list):
     '''
     clf: Best classifier given the scoring metric (a pipeline object)
@@ -575,18 +534,17 @@ def main():
     
     # Get dictonary of classifier, parameter, pairs
     classifiers_params_list = getParameters(classifiers, feature_names)
-    
-    #print('FINAL ' + str(classifiers_params_list[type(SVC())]))
-    
+        
     # Create cross validation metric
     print('Calculating cross valadation...')
     cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
     
     # Select final classifiers to tune
-    final_classifier = {GaussianNB() : classifiers_params_list[type(GaussianNB())]}
-    # Uncomment line below to tune all classifiers
-    # **WARNING: RUNTIME MAY BE EXTREMELY LONG***
-    #final_classifiers = getALlClassifers(classifiers)
+    final_classifier = getClassiferTunes([GaussianNB()], classifiers_params_list)
+    
+    ###### *** Uncomment line below to tune all classifiers *** #####
+    ###### *** WARNING: RUNTIME MAY BE EXTREMELY LONG*** ######
+    #final_classifier = getClassiferTunes(classifiers, classifiers_params_list)
                         
     # Tune given Classifiers
     classifier = tuneClassifier(final_classifier, cv, dataset, feature_names,
