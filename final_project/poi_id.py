@@ -8,6 +8,12 @@ from feature_format import featureFormat, targetFeatureSplit
 from sklearn.cross_validation import train_test_split
 from tester import dump_classifier_and_data
 from tester import test_classifier
+# Import classifer model libraries
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
 import numpy as np
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
@@ -136,6 +142,8 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
         prediction: List of prediction label values based on the test subset
                     (a list)
     '''
+    # 1. Created evaluateClf method in order to print out evaluation metrics
+    
     accuracy = classifer.score(feats_test, labs_test)
     precision = metrics.precision_score(labs_test, predictions)
     recall = metrics.recall_score(labs_test, predictions)
@@ -149,45 +157,33 @@ def evaluateClf(classifer, feats_test, labs_test, predictions):
     print('F1 Score = ' + str(f1_score))
     print('ROC Curve AUC = ' + str(roc_auc))
 
+def simpleClassifiers(classifiers, features_train, labels_train, 
+                      features_test, labels_test):    
+    '''
+    Runs and evaluates multiple simple ML classifiers on Enron dataset then,
+    reports the resuts of the classifier evaluation
     
-'''
-### Task 4: Try a varity of classifiers
-### Please name your classifier clf for easy export below.
-### Note that if you want to do PCA or other multi-stage operations,
-### you'll need to use Pipelines. For more info:
-### http://scikit-learn.org/stable/modules/pipeline.html
-
-1. Created evaluateClf method in order to print out evaluation metrics
-   for different ML classifers while keeping the code DRY
-'''
-# Provided to give you a starting point. Try a variety of classifiers.
-'''
-1. Created an basic instance of some classifer models
-'''
-
-
-# Import classifer model libraries
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.naive_bayes import GaussianNB
-
-# Create list of basic classifers
-classifiers = [
-    KNeighborsClassifier(2),
-    SVC(),
-    DecisionTreeClassifier(),
-    RandomForestClassifier(),
-    AdaBoostClassifier(),
-    GaussianNB()]
+    classifiers: List of classifier objects to fit, predict, and evaluate on
+                 the Enron dataset (a list)
     
-# Interate over each basic model to see which ones perform best
-for model in classifiers:
-    clf = model
-    clf.fit(features_train, labels_train)
-    pred = clf.predict(features_test)
-    evaluateClf(clf, features_test, labels_test, pred)
+    features_train: List of features to train the classifier (a list)
+    
+    labels_train: List of labels to train the classifier (a list)
+    
+    features_test: List of features to test the classifier (a list)
+    
+    labels_test: List of labels to test the classifier (a list)
+    '''
+    ### Task 4: Try a varity of classifiers    
+    # Provided to give you a starting point. Try a variety of classifiers.
+    # 1. Created an basic instance of some classifer models
+    
+    # Interate over each basic model to see which ones perform best
+    for model in classifiers:
+        clf = model
+        clf.fit(features_train, labels_train)
+        pred = clf.predict(features_test)
+        evaluateClf(clf, features_test, labels_test, pred)
 
 
 '''
@@ -400,6 +396,17 @@ def main():
     # Split data into training and testing sets
     features_train, features_test, labels_train, labels_test = \
     train_test_split(features, labels, test_size=0.3, random_state=42)
-
+    
+    # Create list of basic classifers
+    classifiers = [KNeighborsClassifier(),
+                   SVC(),
+                   DecisionTreeClassifier(),
+                   RandomForestClassifier(),
+                   AdaBoostClassifier(),
+                   GaussianNB()]
+                   
+    # Evaluate basic classifiers with no parameters on Enron dataset
+    simpleClassifiers(classifiers, features_train, labels_train,
+                      features_test, labels_test)
 if __name__ == '__main__':
     main()
