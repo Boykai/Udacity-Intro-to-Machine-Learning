@@ -483,13 +483,20 @@ clf = grid.best_estimator_
 print('\nCalculations finished.')
 # END OF FINAL TUNED CLASSIFIER
 '''
-'''
-### Task 6: Dump your classifier, dataset, and features_list so anyone can
-### check your results. You do not need to change anything below, but make sure
-### that the version of poi_id.py that you submit can be run on its own and
-### generates the necessary .pkl files for validating your results.
-'''
-dump_classifier_and_data(clf, my_dataset, features_list)
+
+def dumpClf(clf, my_dataset, features_list):
+    '''
+    clf: Best classifier given the scoring metric (a pipeline object)
+    
+    my_dataset: Dict of people in Eron, with values of dictonaries (a dict)
+        
+    features_list: list of labels for features of Enron dataset (a list) 
+    '''
+    ### Task 6: Dump your classifier, dataset, and features_list so anyone can
+    ### check your results. You do not need to change anything below, but make sure
+    ### that the version of poi_id.py that you submit can be run on its own and
+    ### generates the necessary .pkl files for validating your results.
+    dump_classifier_and_data(clf, my_dataset, features_list)
 
 
 def main():
@@ -519,15 +526,27 @@ def main():
     simpleClassifiers(classifiers, features_train, labels_train,
                       features_test, labels_test)
     
+    # Select final classifiers to tune
+    final_classifiers = SVC()
+    
+    # Uncomment line below to tune all classifiers
+    # **WARNING: RUNTIME MAY BE EXTREMELY LONG***
+    #final_classifiers = classifiers
+    
     # Get dictonary of classifier, parameter, pairs
-    classifiers_params_list = getParameters(classifiers, feature_names)
+    classifiers_params_list = getParameters(final_classifiers, feature_names)
     
     # Create cross validation metric
     print('Calculating cross valadation...')
     cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
     
     # Tune given Classifiers
-    tuneClassifier(classifiers_params_list, cv, dataset, feature_names,
+    classifier = tuneClassifier(classifiers_params_list, cv, dataset, feature_names,
                    features_train, labels_train, features_test, labels_test)
+    
+    # Dump classifier, dataset, and features to tester.py
+    dumpClf(classifier, dataset, feature_names)
+    
+    
 if __name__ == '__main__':
     main()
