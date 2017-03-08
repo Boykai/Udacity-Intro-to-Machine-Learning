@@ -208,27 +208,13 @@ def getPCAKBestParameters(features):
                                selector__k = [5, 10, 15, 'all'])  
     
     return feature_params_list
-    
-def getParameters(classifiers, features_list):
+
+def getKNeighborsParams():
     '''
-    Creates parameter list for each classifier for later use in parameter
-    tuning in GridSearchCV
+    Get list of values for each parameter for KNightbors classifier
     
-    classifiers: List of classifier objects to fit, predict, and evaluate on
-                 the Enron dataset (a list)
-                 
-    features_list: List of labels for features of Enron dataset (a list)
-    
-    @return: Classifier key, parameter list, pairs for GridSearchCV use (a dict)
+    @return: dictionary containing list of values for each parameter (a dict)
     '''
-    
-    # Create parameter grid options for each classifer, store in params_list
-    params_list = []
-    
-    # Get PCA and SelectKBest parameter list for GridSearchCV
-    feature_params_list = getPCAKBestParameters(features_list)   
-    
-    # KNeighbors parameters for GridSearchCV
     kneighbors_params = dict(clf__metric = ['minkowski',
                                             'euclidean',
                                             'manhattan'], 
@@ -239,10 +225,15 @@ def getParameters(classifiers, features_list):
                                                'ball_tree', 
                                                'kd_tree',
                                                'brute'])
-    kneighbors_params.update(feature_params_list)
-    params_list.append(kneighbors_params)
     
-    # SVM parameters for GridSearchCV
+    return kneighbors_params
+    
+def getSVCParams():
+    '''
+    Get list of values for each parameter for SVC classifier
+    
+    @return: dictionary containing list of values for each parameter (a dict)
+    '''
     svc_params = dict(clf__C = [0.00001, 
                                 0.0001, 
                                 0.001, 
@@ -265,10 +256,15 @@ def getParameters(classifiers, features_list):
                                                1, 
                                                10, 
                                                42])
-    svc_params.update(feature_params_list)
-    params_list.append(svc_params)
     
-    # Decision Tree parameters for GridSearchCV
+    return svc_params
+    
+def getDTParams():
+    '''
+    Get list of values for each parameter for Decision Tree classifier
+    
+    @return: dictionary containing list of values for each parameter (a dict)
+    '''
     decision_tree_params = dict(clf__criterion = ['gini', 
                                                   'entropy'],
                                 clf__max_features = ['sqrt', 
@@ -280,10 +276,15 @@ def getParameters(classifiers, features_list):
                                                      1, 
                                                      10, 
                                                      42])
-    decision_tree_params.update(feature_params_list)
-    params_list.append(decision_tree_params)
     
-    # Random Forest parameters for GridSearchCV
+    return decision_tree_params    
+
+def getRandomForestParams():
+    '''
+    Get list of values for each parameter for Random Forest classifier
+    
+    @return: dictionary containing list of values for each parameter (a dict)
+    '''
     random_forest_params = dict(clf__n_estimators = np.arange(10, 50, 10),
                                  clf__criterion = ['gini', 
                                                    'entropy'],
@@ -296,10 +297,15 @@ def getParameters(classifiers, features_list):
                                                       1, 
                                                       10, 
                                                       42])
-    random_forest_params.update(feature_params_list)
-    params_list.append(random_forest_params)
     
-    # Adaboost parameters for GridSearchCV
+    return random_forest_params
+
+def getAdaParams():
+    '''
+    Get list of values for each parameter for Adaboost classifier
+    
+    @return: dictionary containing list of values for each parameter (a dict)
+    '''
     adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
                                                   GaussianNB()],
                            clf__n_estimators = np.arange(10, 150, 10),
@@ -308,22 +314,60 @@ def getParameters(classifiers, features_list):
                            clf__random_state = [0, 
                                                 1, 
                                                 10, 
-                                                42])
+                                                42]) 
+    
+    return adaboost_params
+    
+def getParameters(classifiers, features_list):
+    '''
+    Creates parameter list for each classifier for later use in parameter
+    tuning in GridSearchCV
+    
+    classifiers: List of classifier objects type to fit, predict, and evaluate 
+                 on the Enron dataset (a list)
+                 
+    features_list: List of labels for features of Enron dataset (a list)
+    
+    @return: Classifier type key, parameter dict, pairs for GridSearchCV use (a dict)
+    '''
+    
+    # Create parameter grid options for each classifer, store in params_list
+    param_dict = {}
+    
+    # Get PCA and SelectKBest parameter list for GridSearchCV
+    feature_params_list = getPCAKBestParameters(features_list)   
+    
+    # KNeighbors parameters for GridSearchCV
+    kneighbors_params = getKNeighborsParams()
+    kneighbors_params.update(feature_params_list)
+    param_dict.update({type(KNeighborsClassifier()) : kneighbors_params})
+    
+    # SVM parameters for GridSearchCV
+    svc_params = getSVCParams()
+    svc_params.update(feature_params_list)
+    param_dict.update({type(SVC()) : svc_params})
+    
+    # Decision Tree parameters for GridSearchCV
+    decision_tree_params = getDTParams()
+    decision_tree_params.update(feature_params_list)
+    param_dict.update({type(DecisionTreeClassifier()) : decision_tree_params})
+    
+    # Random Forest parameters for GridSearchCV
+    random_forest_params = getRandomForestParams()
+    random_forest_params.update(feature_params_list)
+    param_dict.update({type(RandomForestClassifier()) : random_forest_params})
+    
+    # Adaboost parameters for GridSearchCV
+    adaboost_params = getAdaParams()
     adaboost_params.update(feature_params_list)
-    params_list.append(adaboost_params)
+    param_dict.update({type(AdaBoostClassifier()) : adaboost_params})
     
     # Naive Bayes parameters for GridSearchCV
     naive_bayes_params = dict()
     naive_bayes_params.update(feature_params_list)
-    params_list.append(naive_bayes_params)
+    param_dict.update({type(GaussianNB()) : naive_bayes_params})
     
-    classifiers_params_dict = {}
-    
-    for i in classifiers:
-        classifiers_params_dict.update({classifiers[i] : params_list[i]})
-        
-    return classifiers_params_dict
-        
+    return param_dict    
 
 def tuneClassifier(classifiers_params, cross_val, my_dataset, features_list,
                    features_train, labels_train, features_test, labels_test):
@@ -363,6 +407,9 @@ def tuneClassifier(classifiers_params, cross_val, my_dataset, features_list,
     # Split and set classifiers and parameter lists
     classifiers = list(classifiers_params.keys())
     params_list = list(classifiers_params.values())
+    
+    print('class' + str(classifiers))
+    print('params' + str(params_list))
     
     # Iterate over each classifier and run GridSearchCV using the given params
     for i in range(len(classifiers)):
@@ -404,7 +451,7 @@ def tuneClassifier(classifiers_params, cross_val, my_dataset, features_list,
             print(str(features_selected_list[i]) + ' ' + str(features_selected_scores[i]))
         
         # Run test_classifer
-        print('\n\nRunning Tester...\n' + str(type(classifiers[i])))
+        print('\n\nRunning Tester...\n' )#+ str(type(classifiers[i])))
         test_classifier(grid.best_estimator_, my_dataset, features_list)
         
         print('\nBest estimator = \n' + str(grid.best_estimator_))
@@ -526,22 +573,23 @@ def main():
     simpleClassifiers(classifiers, features_train, labels_train,
                       features_test, labels_test)
     
-    # Select final classifiers to tune
-    final_classifiers = SVC()
-    
-    # Uncomment line below to tune all classifiers
-    # **WARNING: RUNTIME MAY BE EXTREMELY LONG***
-    #final_classifiers = classifiers
-    
     # Get dictonary of classifier, parameter, pairs
-    classifiers_params_list = getParameters(final_classifiers, feature_names)
+    classifiers_params_list = getParameters(classifiers, feature_names)
+    
+    #print('FINAL ' + str(classifiers_params_list[type(SVC())]))
     
     # Create cross validation metric
     print('Calculating cross valadation...')
     cv = StratifiedShuffleSplit(labels_train, 10, random_state = 42)
     
+    # Select final classifiers to tune
+    final_classifier = {GaussianNB() : classifiers_params_list[type(GaussianNB())]}
+    # Uncomment line below to tune all classifiers
+    # **WARNING: RUNTIME MAY BE EXTREMELY LONG***
+    #final_classifiers = getALlClassifers(classifiers)
+                        
     # Tune given Classifiers
-    classifier = tuneClassifier(classifiers_params_list, cv, dataset, feature_names,
+    classifier = tuneClassifier(final_classifier, cv, dataset, feature_names,
                    features_train, labels_train, features_test, labels_test)
     
     # Dump classifier, dataset, and features to tester.py
