@@ -170,16 +170,17 @@ for model in classifiers:
 ### stratified shuffle split cross validation. For more info: 
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
 '''
-'''
+
 # START OF TUNING MULTIPLE CLASSIFIER PIPELINE TYPES
 # UNCOMMENT THIS SECTION TO TUNE MULTIPLE CLASSIFIER PIPELINES
 ### WARNING: RUNTIME MAY BE EXTREMELY LONG ###
 # Create parameter grid options for each classifer, store in params_list
 params_list = []
+
 feature_params_list = dict(reduce_dim__n_components = np.arange(1, 4),
                            reduce_dim__whiten = [True, False],
                            reduce_dim__svd_solver = ['auto', 'full', 'arpack', 'randomized'],
-                           selector__k = [5, 10, 15, 'all'])
+                           selector__k = np.arange(5, len(features_list) - 1))
 
 # Create cross validation metric
 print('Calculating cross valadation...')
@@ -224,7 +225,6 @@ params_list.append(random_forest_params)
 adaboost_params = dict(clf__base_estimator = [DecisionTreeClassifier(),
                                               GaussianNB()],
                        clf__n_estimators = np.arange(10, 150, 10),
-                       clf__classifier__learning_rate = [0.5,1.0,1.5,2.0],
                        clf__algorithm = ['SAMME', 'SAMME.R'],
                        clf__random_state = [0, 1, 10, 42])
 adaboost_params.update(feature_params_list)
@@ -279,7 +279,7 @@ for i in range(len(params_list)):
     
     print('\nBest estimator = \n' + str(grid.best_estimator_))
 # END OF TUNING MULTIPLE CLASSIFIER PIPELINE TYPES
-'''
+
 
 # START OF FINAL TUNED CLASSIFIER
 # Example starting point. Try investigating other evaluation techniques!
