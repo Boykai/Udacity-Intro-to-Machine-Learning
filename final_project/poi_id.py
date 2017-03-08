@@ -27,7 +27,7 @@ def getFeatureList():
     '''
     Creates list of labels for features of Enron dataset
     
-    @return: features_list (a list of strings)
+    @return: features_list (a list)
     '''
     # Create feature list to include needed features for classifer
     # 'poi' must be first feature within the list
@@ -49,23 +49,30 @@ def getDataDict():
     with each feature being a key
     with each feature value being a value
     
-    @return: data_dict (a dictonary of lists)
+    @return: data_dict (a dictonary)
     '''    
     ### Load the dictionary containing the dataset
     with open("final_project_dataset.pkl", "r") as data_file:
         data_dict = pickle.load(data_file)
 
-''' 
-### Task 2: Remove outliers
-
-1. Not removing ANY outliers for first iteration 
-2. Remove 'TOTAL' from the dataset. It biases the dataset due to it being a 
-   total of all the features for all of the samples
-'''
-
-# Print and remove 'TOTAL' from dataset
-print('Removing "TOTAL"...\n' + str(data_dict['TOTAL']))
-data_dict.pop('TOTAL', 0)
+def removeOutliers(data_dict):
+    ''' 
+    Remove bad outliers from Enron dataset
+    Removes 'TOTAL' outlier entry from data_dict
+    Returns clean dataset with outliers are removed
+    
+    @return: data_dict (a dictonary)
+    '''
+    ### Task 2: Remove outliers
+    # 1. Not removing ANY outliers for first iteration 
+    # 2. Remove 'TOTAL' from the dataset. It biases the dataset due to it being a 
+    # total of all the features for all of the samples
+       
+    # Print and remove 'TOTAL' from dataset
+    print('Removing "TOTAL"...\n' + str(data_dict['TOTAL']))
+    data_dict.pop('TOTAL', 0)
+    
+    return data_dict
 
 '''
 ### Task 3: Create new feature(s)
