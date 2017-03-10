@@ -6,21 +6,21 @@ import numpy as np
 import pandas as pd
 from sklearn import metrics
 sys.path.append("../tools/")
-from feature_format import featureFormat, targetFeatureSplit
-from sklearn.cross_validation import train_test_split
-from tester import dump_classifier_and_data
-from tester import test_classifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.grid_search import GridSearchCV
+from sklearn import preprocessing
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
-from sklearn import preprocessing
+from sklearn.grid_search import GridSearchCV
 from sklearn.feature_selection import SelectKBest
 from sklearn.cross_validation import StratifiedShuffleSplit
+from feature_format import featureFormat, targetFeatureSplit
+from sklearn.cross_validation import train_test_split
+from tester import test_classifier
+from tester import dump_classifier_and_data
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 
 
 def getFeatureList():
@@ -82,7 +82,7 @@ def removeOutliers(data_dict):
     # total of all the features for all of the samples
        
     # Print and remove 'TOTAL' from dataset
-    print('Removing "TOTAL"...\n' + str(data_dict['TOTAL']))
+    print('\nRemoving "TOTAL"...\n' + str(data_dict['TOTAL']))
     data_dict.pop('TOTAL', 0)
     
     return data_dict
@@ -126,15 +126,33 @@ def createFeatures(data_dict):
     
     return my_dataset
 
+    
 def evaluateDataset(data_dict):
+    '''
+    Prints basic Enron dataset People of Interest numerical values
+    
+    data_dict: Dictonary of Enron dataset (a dict)
+    '''
     data = data_dict.copy()
     
+    # Create pandas dataframe from Enron dataset
     df = pd.DataFrame(data).transpose()
     
-    print(df['poi'].sum())
+    # Get people and feature count
+    people_count, feature_count = df.shape
+    people_poi_count = df['poi'].count()
     
+    # Print basic Enron dataset People of Interest numerical values
+    print('Enron dataset contains ' 
+          + str(people_count) + ' people.')
     
+    print('Enron dataset contains ' 
+          + str(df['poi'].sum()) + ' People of Interest.')
     
+    print('Enron dataset contains ' 
+          + str(people_poi_count - df['poi'].sum()) + ' Non-People of Interest.')
+    
+       
 def evaluateClf(classifer, feats_test, labs_test, predictions):
     '''
     Prints classifer elvaluation metrics
