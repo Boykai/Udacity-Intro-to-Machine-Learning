@@ -2,6 +2,8 @@
 
 import sys
 import pickle
+import numpy as np
+import pandas as pd
 from sklearn import metrics
 sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
@@ -13,7 +15,6 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
-import numpy as np
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
@@ -125,6 +126,14 @@ def createFeatures(data_dict):
     
     return my_dataset
 
+def evaluateDataset(data_dict):
+    data = data_dict.copy()
+    
+    df = pd.DataFrame(data).transpose()
+    
+    print(df['poi'].sum())
+    
+    
     
 def evaluateClf(classifer, feats_test, labs_test, predictions):
     '''
@@ -506,9 +515,10 @@ def dumpClf(clf, my_dataset, features_list):
 
 
 def main():
-    # Get, create, and store Enron dataset
+    # Get, create, explore, and store Enron dataset
     feature_names = getFeatureList()
-    dataset = getDataDict() 
+    dataset = getDataDict()
+    evaluateDataset(dataset)
     dataset = removeOutliers(dataset)
     #dataset = createFeatures(dataset) # Uncomment to add new features
     
