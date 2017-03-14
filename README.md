@@ -24,13 +24,16 @@ emails_by_address : this directory contains many text files, each of which conta
 # Results
 ## Enron Submission Free-Response Questions
 
-
+### Dataset Summary
+* Enron dataset contains 146 people.
+* Enron dataset contains 18 People of Interest.
+* Enron dataset contains 128 Non-People of Interest.
 
 1. Summarize for us the goal of this project and how machine learning is useful in trying to accomplish it. As part of your answer, give some background on the dataset and how it can be used to answer the project question. Were there any outliers in the data when you got it, and how did you handle those?  [relevant rubric items: “data exploration”, “outlier investigation”]
  * The goal of this project is to create a tuned machine learning classifier in order to determine whether or not an employee of Enron is a Person of Interest based on the features of each person given within the dataset. This dataset is one of a collection of one of, if not the, largest real financial sandals to ever occur within a single company. Enron committed systematic financial fraud, and when discovered numerous people went to jail, even more were People of Interest in the investigation. This machine learning classifier attempts to determine whether or not an employee of Enron is a Person of Interest based on the features of each person given within the dataset. In this dataset there was one outlier that was removed before the machine learning classifier was fit on the data, 'TOTAL'. 'TOTAL' was a bad sample input due to the way in which the original spreadsheet of the dataset was structured. 'TOTAL' included the summation of each feature for all of the samples in the dataset. 'TOTAL' was found by viewing the dataset through visual exploration, and then further in depth through the provided Enron dataset documentation in final_project/enron61702insiderpay.pdf.
 
 2. What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that does not come ready-made in the dataset -- explain what feature you tried to make, and the rationale behind it. (You do not necessarily have to use it in the final analysis, only engineer and test it.) In your feature selection step, if you used an algorithm like a decision tree, please also give the feature importance of the features that you use, and if you used an automated feature selection function like SelectKBest, please report the feature scores and reasons for your choice of parameter values.  [relevant rubric items: “create new features”, “properly scale features”, “intelligently select feature”]
- * SelectKBest was used for the feature selection for the classifier pipeline. As part of the assignment, 'email_address' was removed as a feature due to this feature being used for the email data from the dataset, which was not used in this classifier. A new feature was created, but was not used in the classifier pipeline, 'poi_email_ratio', which was the ratio of total to and from 'poi_emails' divided by the total to and from emails for each person. Feature scaling was used within the classifier pipeline, MinMaxScalar was the selected feature scalar function. Given the wide range of values for features from feature to feature, MinMaxScalar was selected. From the SelectKBest, these features and scores were found:
+ * SelectKBest was used for the feature selection for the classifier pipeline. As part of the assignment, 'email_address' was removed as a feature due to this feature being used for the email data from the dataset, which was not used in this classifier. A new feature was created, but was not used in the classifier due to it not being selected by SelectKBest in the pipeline. 'poi_email_ratio', which was the ratio of total to and from 'poi_emails' divided by the total to and from emails for each person. Feature scaling was used within the classifier pipeline, MinMaxScalar was the selected feature scalar function. Given the wide range of values for features from feature to feature, MinMaxScalar was selected. From the SelectKBest, these features and scores were found:
  - salary 15.81
  - total_payments 8.96
  - exercised_stock_options 9.96
@@ -97,7 +100,7 @@ emails_by_address : this directory contains many text files, each of which conta
     * ROC Curve AUC = 0.661538461538
  * The accuracy for this classifier was, 0.864. Which means that the classifier that was trained on a subset of the dataset, the training set, was able to correctly classify a person in the testing subset as a Person of Interest or Not a Person of Interest correctly 86.4% of the time. 
 
- * The ROC Curve AUC for this classifier was, 0.662. Which means that the classifier was slightly better than random guessing (0.5). The ROC Curve AUC metric showed that out of the people in the testing subset, out of all the people classified as People of Interest, only 66.2% were classified correctly as People of Interest.
+ * The precision for this classifier was, 0.4. The precision metric showed that out of the people in the testing subset, out of all the people classified as People of Interest, only 40.0% were classified correctly as People of Interest.
 
 Final Metrics Given by tester.py:
 
