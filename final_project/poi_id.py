@@ -538,7 +538,7 @@ def main():
     dataset = getDataDict()
     evaluateDataset(dataset)
     dataset = removeOutliers(dataset)
-    dataset = createFeatures(dataset)
+    #dataset = createFeatures(dataset)
     
     # Extract features and labels from dataset for local testing
     data = featureFormat(dataset, feature_names, sort_keys = True)
